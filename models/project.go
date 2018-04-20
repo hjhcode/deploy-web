@@ -14,6 +14,8 @@ type Project struct {
 	GitDockerPath   string
 	CreateDate      time.Time
 	UpdateDate      time.Time
+	IsDel           int
+	ProjectMember   string
 }
 
 //增加

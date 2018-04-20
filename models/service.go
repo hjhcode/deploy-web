@@ -16,6 +16,7 @@ type Service struct {
 	DockerConfig    string
 	CreateDate      time.Time
 	UpdateDate      time.Time
+	ServiceMember   string
 }
 
 //增加

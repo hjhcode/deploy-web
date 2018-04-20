@@ -22,6 +22,8 @@ CREATE TABLE `project` (
 	`git_docker_path` text default NULL COMMENT 'dockerfile文件git路径',
 	`create_date` datetime default NULL COMMENT '工程创建时间',
 	`update_date` datetime default NULL COMMENT '工程最后更新时间',
+	`is_del` int(5) default '0' COMMENT '工程是否被删除',
+	`project_member` varchar(500) default NULL COMMENT '工程成员列表',
 	PRIMARY KEY(`id`),
 	KEY `account_id` (`account_id`),
 	KEY `project_name` (`project_name`),
@@ -29,15 +31,15 @@ CREATE TABLE `project` (
 	KEY `update_date` (`update_date`)
 )ENGINE=InnoDB default CHARSET=utf8 COMMENT '工程表';
 
-DROP TABLE IF EXISTS `project_member`;
-CREATE TABLE `project_member` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '工程成员ID',
-  `project_id` int(10) NOT NULL COMMENT '工程ID',
-  `account_id` int(10) NOT NULL COMMENT '成员ID',
-  PRIMARY KEY (`id`),
-  KEY `project_id` (`project_id`),
-  KEY `account_id` (`account_id`)
-) ENGINE=InnoDB default CHARSET=utf8 COMMENT '工程成员表';
+-- DROP TABLE IF EXISTS `project_member`;
+-- CREATE TABLE `project_member` (
+--   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '工程成员ID',
+--   `project_id` int(10) NOT NULL COMMENT '工程ID',
+--   `account_id` int(10) NOT NULL COMMENT '成员ID',
+--   PRIMARY KEY (`id`),
+--   KEY `project_id` (`project_id`),
+--   KEY `account_id` (`account_id`)
+-- ) ENGINE=InnoDB default CHARSET=utf8 COMMENT '工程成员表';
 
 
 DROP TABLE IF EXISTS `construct_record`;
@@ -92,6 +94,7 @@ CREATE TABLE `service` (
 	`docker_config` text default NULL COMMENT 'docker config文件',
 	`create_date` datetime default NULL COMMENT '服务创建时间',
 	`update_date` datetime default NULL COMMENT '服务最后更新时间',
+	`service_member` varchar(500) default NULL COMMENT '服务成员列表',
 	PRIMARY KEY(`id`),
 	KEY `account_id` (`account_id`),
 	KEY `service_name` (`service_name`),
@@ -100,15 +103,15 @@ CREATE TABLE `service` (
 )ENGINE=InnoDB default CHARSET=utf8 COMMENT '服务表';
 
 
-DROP TABLE IF EXISTS `service_member`;
-CREATE TABLE `service_member` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '服务成员ID',
-  `service_id` int(10) NOT NULL COMMENT '服务ID',
-  `account_id` int(10) NOT NULL COMMENT '成员ID',
-  PRIMARY KEY (`id`),
-  KEY `service_id` (`service_id`),
-  KEY `account_id` (`account_id`)
-) ENGINE=InnoDB default CHARSET=utf8 COMMENT '服务成员表';
+-- DROP TABLE IF EXISTS `service_member`;
+-- CREATE TABLE `service_member` (
+--   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '服务成员ID',
+--   `service_id` int(10) NOT NULL COMMENT '服务ID',
+--   `account_id` int(10) NOT NULL COMMENT '成员ID',
+--   PRIMARY KEY (`id`),
+--   KEY `service_id` (`service_id`),
+--   KEY `account_id` (`account_id`)
+-- ) ENGINE=InnoDB default CHARSET=utf8 COMMENT '服务成员表';
 
 
 DROP TABLE IF EXISTS `deploy`;
