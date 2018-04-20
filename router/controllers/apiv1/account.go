@@ -15,9 +15,9 @@ func RegisterAccount(router *gin.RouterGroup) {
 }
 
 func httpHandlerLogin(c *gin.Context) {
-	email := c.PostForm("email")
+	name := c.PostForm("name")
 	password := c.PostForm("password")
-	if flag, token, mess := managers.AccountLogin(email, password); flag == false {
+	if flag, token, mess := managers.AccountLogin(name, password); flag == false {
 		c.JSON(http.StatusOK, (&baseController.Base{}).Fail(mess))
 	} else {
 		cookie := &http.Cookie{
@@ -32,9 +32,9 @@ func httpHandlerLogin(c *gin.Context) {
 }
 
 func httpHandlerRegister(c *gin.Context) {
-	email := c.PostForm("email")
+	name := c.PostForm("name")
 	password := c.PostForm("password")
-	if flag, userId, mess := managers.AccountRegister(email, password); flag == false {
+	if flag, userId, mess := managers.AccountRegister(name, password); flag == false {
 		c.JSON(http.StatusOK, (&baseController.Base{}).Fail(mess))
 	} else {
 		c.JSON(http.StatusOK, (&baseController.Base{}).Success(userId))

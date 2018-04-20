@@ -9,10 +9,10 @@ import (
 	"github.com/hjhcode/deploy-web/models"
 )
 
-func AccountLogin(email, password string) (bool, string, string) {
-	account := getAccountByEmail(email)
+func AccountLogin(name, password string) (bool, string, string) {
+	account := getAccountByName(name)
 	if account == nil {
-		return false, "", "Email is not exist"
+		return false, "", "user is not exist"
 	}
 	if account.Password != md5Encode(password) {
 		return false, "", "Password is wrong"
@@ -27,12 +27,12 @@ func AccountLogin(email, password string) (bool, string, string) {
 	}
 }
 
-func AccountRegister(email, password string) (bool, int64, string) {
-	account := getAccountByEmail(email)
+func AccountRegister(name, password string) (bool, int64, string) {
+	account := getAccountByName(name)
 	if account != nil {
-		return false, 0, "Email is exist"
+		return false, 0, "user is exist"
 	}
-	account = &models.Account{Email: email, Password: md5Encode(password)}
+	account = &models.Account{Name: name, Password: md5Encode(password)}
 	if insertId, err := (models.Account{}).Add(account); err != nil {
 		panic(err.Error())
 	} else {
@@ -40,8 +40,8 @@ func AccountRegister(email, password string) (bool, int64, string) {
 	}
 }
 
-func getAccountByEmail(email string) *models.Account {
-	account, err := models.Account{}.GetByEmail(email)
+func getAccountByName(name string) *models.Account {
+	account, err := models.Account{}.GetByName(name)
 	if err != nil {
 		panic(err.Error())
 	}

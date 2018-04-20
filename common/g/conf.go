@@ -20,7 +20,7 @@ type RunConfig struct {
 	WaitTimeout int    `toml:"waitTimeout"`
 	HTTPPort    int    `toml:"httpPort"`
 	Mode        string `toml:"mode"`
-	MaxAllowed  int    `toml:maxAllowed"`
+	MaxAllowed  int    `toml:"maxAllowed"`
 }
 
 type LogConfig struct {

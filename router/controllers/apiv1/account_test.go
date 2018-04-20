@@ -3,18 +3,19 @@ package apiv1
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hjhcode/deploy-web/router/controllers/baseController"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/hjhcode/deploy-web/router/controllers/baseController"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogin(t *testing.T) {
 	resp, err := http.Post("http://127.0.0.1:8000/apiv1/account/login",
 		"application/x-www-form-urlencoded",
-		strings.NewReader("email=abcd.com&password=asdf"))
+		strings.NewReader("name=abcd.com&password=asdf"))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -36,7 +37,7 @@ func TestLogin(t *testing.T) {
 func TestRegister(t *testing.T) {
 	resp, err := http.Post("http://127.0.0.1:8000/apiv1/account/register",
 		"application/x-www-form-urlencoded",
-		strings.NewReader("email=abcd.com&password=asdf"))
+		strings.NewReader("name=abcd.com&password=asdf"))
 	if err != nil {
 		fmt.Println(err)
 	}
