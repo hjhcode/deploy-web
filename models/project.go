@@ -63,6 +63,19 @@ func (this Project) QueryByProjectName(projectName string) ([]*Project, error) {
 	return projectList, nil
 }
 
+//查询(根据工程名精确查询）
+func (this Project) GetByProjectName(projectName string) (*Project, error) {
+	project := new(Project)
+	has, err := OrmWeb.Where("project_name=?", projectName).Get(project)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return project, nil
+}
+
 //查询(根据创建者查询）
 func (this Project) QueryByAccountId(accountId int64) ([]*Project, error) {
 	projectList := make([]*Project, 0)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hjhcode/deploy-web/common/components"
+	"github.com/hjhcode/deploy-web/router/controllers/base"
 )
 
 func Auth() gin.HandlerFunc {
@@ -24,6 +25,6 @@ func Auth() gin.HandlerFunc {
 				c.Next()
 			}
 		}
-		c.JSON(http.StatusForbidden, "authv1 failure")
+		c.AbortWithStatusJSON(http.StatusForbidden, base.Fail("authv1 failure"))
 	}
 }

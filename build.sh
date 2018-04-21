@@ -11,6 +11,10 @@ function build() {
 
 	echo "`go version`"
 	go build -o $app
+    if [[ $running -gt 0 ]]; then
+            echo "failure to go build"
+            exit 0
+    fi
 }
 
 function make_output {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hjhcode/deploy-web/router/controllers/baseController"
+	"github.com/hjhcode/deploy-web/router/controllers/base"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +27,7 @@ func TestLogin(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	var respT baseController.HttpResponse
+	var respT base.HttpResponse
 	if err := json.Unmarshal(body, &respT); err != nil {
 		fmt.Println(err)
 	}
@@ -48,7 +48,7 @@ func TestRegister(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	var respT baseController.HttpResponse
+	var respT base.HttpResponse
 	if err := json.Unmarshal(body, &respT); err != nil {
 		fmt.Println(err)
 	}

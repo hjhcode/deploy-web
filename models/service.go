@@ -64,6 +64,19 @@ func (this Service) QueryByServiceName(serviceName string) ([]*Service, error) {
 	return serviceList, nil
 }
 
+//查询(根据服务名精确查询)
+func (this Service) GetByServiceName(serviceName string) (*Service, error) {
+	service := new(Service)
+	has, err := OrmWeb.Where("service_name=?", serviceName).Get(service)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return service, nil
+}
+
 //查询(根据服务创建者查询）
 func (this Service) QueryByAccountId(accountId int64) ([]*Service, error) {
 	serviceList := make([]*Service, 0)
