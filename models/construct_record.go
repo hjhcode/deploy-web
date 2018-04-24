@@ -5,14 +5,14 @@ import (
 )
 
 type ConstructRecord struct {
-	Id             int64
-	AccountId      int64
-	ProjectId      int64
-	MirrorId       int64
-	ConstructStart int64
-	ConstructEnd   int64
-	ConstructStatu int
-	ConstructLog   string
+	Id             int64  `json:"id" form:"id"`
+	AccountId      int64  `json:"account_id" form:"account_id"`
+	ProjectId      int64  `json:"project_id" form:"project_id"`
+	MirrorId       int64  `json:"mirror_id" form:"mirror_id"`
+	ConstructStart int64  `json:"construct_start" form:"construct_start"`
+	ConstructEnd   int64  `json:"construct_end" form:"construct_end"`
+	ConstructStatu int    `json:"construct_statu" form:"construct_statu"`
+	ConstructLog   string `json:"construct_log" form:"construct_log"`
 }
 
 //增加

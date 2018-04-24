@@ -5,15 +5,15 @@ import (
 )
 
 type Project struct {
-	Id              int64
-	AccountId       int64
-	ProjectName     string
-	ProjectDescribe string
-	GitDockerPath   string
-	CreateDate      int64
-	UpdateDate      int64
-	IsDel           int
-	ProjectMember   string
+	Id              int64  `json:"id" form:"id"`
+	AccountId       int64  `json:"account_id" form:"account_id"`
+	ProjectName     string `json:"project_name" form:"project_name"`
+	ProjectDescribe string `json:"project_describe" form:"project_describe"`
+	GitDockerPath   string `json:"git_docker_path" form:"git_docker_path"`
+	CreateDate      int64  `json:"create_date" form:"create_date"`
+	UpdateDate      int64  `json:"update_date" form:"update_date"`
+	IsDel           int    `json:"is_del" form:"is_del"`
+	ProjectMember   string `json:"project_member" form:"project_member"`
 }
 
 //增加

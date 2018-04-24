@@ -5,16 +5,16 @@ import (
 )
 
 type Service struct {
-	Id              int64
-	AccountId       int64
-	ServiceName     string
-	ServiceDescribe string
-	HostList        string
-	MirrorList      string
-	DockerConfig    string
-	CreateDate      int64
-	UpdateDate      int64
-	ServiceMember   string
+	Id              int64  `json:"id" form:"id"`
+	AccountId       int64  `json:"account_id" form:"account_id"`
+	ServiceName     string `json:"service_name" form:"service_name"`
+	ServiceDescribe string `json:"service_describe" form:"service_describe"`
+	HostList        string `json:"host_list" form:"host_list"`
+	MirrorList      string `json:"mirror_list" form:"mirror_list"`
+	DockerConfig    string `json:"docker_config" form:"docker_config"`
+	CreateDate      int64  `json:"create_date" form:"create_date"`
+	UpdateDate      int64  `json:"update_date" form:"update_date"`
+	ServiceMember   string `json:"service_member" form:"service_member"`
 }
 
 //增加

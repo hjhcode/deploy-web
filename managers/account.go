@@ -17,8 +17,7 @@ func AccountLogin(name, password string) (bool, string, string) {
 	if account.Password != md5Encode(password) {
 		return false, "", "Password is wrong"
 	} else {
-		//TODO
-		userId := 1
+		userId := account.Id
 		if token, err := components.CreateToken(userId); err != nil {
 			panic(err.Error())
 		} else {
@@ -53,4 +52,12 @@ func md5Encode(password string) string {
 	io.WriteString(w, password)
 	md5str := string(fmt.Sprintf("%x", w.Sum(nil)))
 	return md5str
+}
+
+func getCreator(accountId int64) string {
+	account, err := models.Account{}.GetById(accountId)
+	if err != nil {
+		panic(err.Error())
+	}
+	return account.Name
 }

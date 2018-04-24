@@ -6,15 +6,17 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
+	"strconv"
+
 	"github.com/hjhcode/deploy-web/common/g"
 )
 
 var mySigningKey = "let's to change the world!"
 
-func CreateToken(userId int) (string, error) {
+func CreateToken(userId int64) (string, error) {
 	cfg := g.Conf()
 	claims := jwt.MapClaims{
-		"uid": userId,
+		"uid": strconv.FormatInt(userId, 10),
 		"exp": time.Now().Add(time.Second * 24 * 60 * 60 * time.Duration(cfg.Jwt.MaxEffectiveTime)).Unix(),
 	}
 

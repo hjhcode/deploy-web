@@ -5,16 +5,16 @@ import (
 )
 
 type Deploy struct {
-	Id           int64
-	ServiceId    int64
-	AccountId    int64
-	DeployStart  int64
-	DeployEnd    int64
-	HostList     string
-	MirrorList   string
-	DockerConfig string
-	DeployStatu  int
-	DeployLog    string
+	Id           int64  `json:"id" form:"id"`
+	ServiceId    int64  `json:"service_id" form:"service_id"`
+	AccountId    int64  `json:"account_id" form:"account_id"`
+	DeployStart  int64  `json:"deploy_start" form:"deploy_start"`
+	DeployEnd    int64  `json:"deploy_end" form:"deploy_end"`
+	HostList     string `json:"host_list" form:"host_list"`
+	MirrorList   string `json:"mirror_list" form:"mirror_list"`
+	DockerConfig string `json:"docker_config" form:"docker_config"`
+	DeployStatu  int    `json:"deploy_statu" form:"deploy_statu"`
+	DeployLog    string `json:"deploy_log" form:"deploy_log"`
 }
 
 //增加
