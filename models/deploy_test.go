@@ -2,14 +2,22 @@ package models
 
 import (
 	"testing"
+	"time"
 )
 
 func TestDeployAdd(t *testing.T) {
 	InitAllInTest()
-	//tm2, _ := time.Parse("2006-01-02 15:04:05", "2014-06-15 08:37:18")
-	deploy := &Deploy{ServiceId: 1, AccountId: 1}
+	deploy := &Deploy{ServiceId: 1, AccountId: 1, DeployStart: time.Now().Unix(), DeployEnd: time.Now().Unix()}
 	if _, err := deploy.Add(deploy); err != nil {
 		t.Error("Add() failed.Error:", err)
+	}
+}
+
+func TestDeployUpdate(t *testing.T) {
+	InitAllInTest()
+	deploy := &Deploy{Id: 1, ServiceId: 1, AccountId: 2}
+	if err := deploy.Update(deploy); err != nil {
+		t.Error("Update() failed.Error:", err)
 	}
 }
 
@@ -23,7 +31,7 @@ func TestDeployRemove(t *testing.T) {
 
 func TestDeployGetById(t *testing.T) {
 	InitAllInTest()
-	deploy := &Deploy{ServiceId: 1, AccountId: 1}
+	deploy := &Deploy{ServiceId: 1, AccountId: 1, DeployStart: time.Now().Unix(), DeployEnd: time.Now().Unix()}
 	deploy.Add(deploy)
 
 	getDeploy, err := deploy.GetById(deploy.Id)

@@ -2,11 +2,12 @@ package models
 
 import (
 	"testing"
+	"time"
 )
 
 func TestServiceAdd(t *testing.T) {
 	InitAllInTest()
-	service := &Service{AccountId: 1, ServiceName: "aaa"}
+	service := &Service{AccountId: 1, ServiceName: "aaa", CreateDate: time.Now().Unix(), UpdateDate: time.Now().Unix()}
 	if _, err := service.Add(service); err != nil {
 		t.Error("Add() failed.Error:", err)
 	}
@@ -30,7 +31,7 @@ func TestServiceRemove(t *testing.T) {
 
 func TestServiceGetById(t *testing.T) {
 	InitAllInTest()
-	service := &Service{AccountId: 1, ServiceName: "aaa"}
+	service := &Service{AccountId: 1, ServiceName: "aaa", CreateDate: time.Now().Unix(), UpdateDate: time.Now().Unix()}
 	service.Add(service)
 
 	getService, err := service.GetById(service.Id)

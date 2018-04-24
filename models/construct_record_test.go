@@ -2,13 +2,23 @@ package models
 
 import (
 	"testing"
+	"time"
 )
 
 func TestConstructRecordAdd(t *testing.T) {
 	InitAllInTest()
-	constructRecord := &ConstructRecord{AccountId: 1, ProjectId: 1}
+	constructRecord := &ConstructRecord{AccountId: 1, ProjectId: 1, ConstructStart: time.Now().Unix(),
+		ConstructEnd: time.Now().Unix()}
 	if _, err := constructRecord.Add(constructRecord); err != nil {
 		t.Error("Add() failed.Error:", err)
+	}
+}
+
+func TestConstructRecordUpdate(t *testing.T) {
+	InitAllInTest()
+	constructRecord := &ConstructRecord{Id: 2, AccountId: 1, ProjectId: 3}
+	if err := constructRecord.Update(constructRecord); err != nil {
+		t.Error("Update() failed.Error:", err)
 	}
 }
 
@@ -22,7 +32,8 @@ func TestConstructRecordRemove(t *testing.T) {
 
 func TestConstructRecordGetById(t *testing.T) {
 	InitAllInTest()
-	constructRecord := &ConstructRecord{AccountId: 1, ProjectId: 1}
+	constructRecord := &ConstructRecord{AccountId: 1, ProjectId: 1, ConstructStart: time.Now().Unix(),
+		ConstructEnd: time.Now().Unix()}
 	constructRecord.Add(constructRecord)
 
 	getConstructRecord, err := constructRecord.GetById(constructRecord.Id)
