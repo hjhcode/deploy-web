@@ -7,44 +7,43 @@ import (
 
 	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
+	"github.com/pkg/errors"
 )
 
-func AccountLogin(name, password string) (bool, string, string) {
-	account := getAccountByName(name)
-	if account == nil {
-		return false, "", "user is not exist"
-	}
-	if account.Password != md5Encode(password) {
-		return false, "", "Password is wrong"
-	} else {
-		userId := account.Id
-		if token, err := components.CreateToken(userId); err != nil {
-			panic(err.Error())
-		} else {
-			return true, token, ""
-		}
-	}
-}
-
-func AccountRegister(name, password string) (bool, int64, string) {
-	account := getAccountByName(name)
-	if account != nil {
-		return false, 0, "user is exist"
-	}
-	account = &models.Account{Name: name, Password: md5Encode(password)}
-	if insertId, err := (models.Account{}).Add(account); err != nil {
-		panic(err.Error())
-	} else {
-		return true, insertId, ""
-	}
-}
-
-func getAccountByName(name string) *models.Account {
+func AccountLogin(name string, password string) (string, error) {
 	account, err := models.Account{}.GetByName(name)
 	if err != nil {
-		panic(err.Error())
+		return "", fmt.Errorf("get account failure : %s ", err.Error())
 	}
-	return account
+	if account == nil {
+		return "", errors.New("name is not exist")
+	}
+	if account.Password != md5Encode(password) {
+		return "", errors.New("Password is wrong")
+	}
+
+	userId := int64(1)
+	token, err := components.CreateToken(userId)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+func AccountRegister(name, password string) (int64, error) {
+	account, err := models.Account{}.GetByName(name)
+	if err != nil {
+		return 0, fmt.Errorf("get account failure : %s ", err.Error())
+	}
+	if account != nil {
+		return 0, errors.New("name is exist")
+	}
+	account = &models.Account{Name: name, Password: md5Encode(password)}
+	insertId, err := models.Account{}.Add(account)
+	if err != nil {
+		return 0, fmt.Errorf("add account failure : %s ", err.Error())
+	}
+	return insertId, nil
 }
 
 func md5Encode(password string) string {

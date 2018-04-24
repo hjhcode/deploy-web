@@ -2,12 +2,14 @@ package main
 
 import (
 	"flag"
-	"github.com/hjhcode/deploy-web/common"
-	"github.com/hjhcode/deploy-web/router"
-	"github.com/TV4/graceful"
-	"net/http"
-	"github.com/hjhcode/deploy-web/common/g"
 	"fmt"
+	"net/http"
+
+	"github.com/TV4/graceful"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/hjhcode/deploy-web/common"
+	"github.com/hjhcode/deploy-web/common/g"
+	"github.com/hjhcode/deploy-web/router"
 )
 
 func main() {
@@ -23,4 +25,6 @@ func main() {
 		Addr:    fmt.Sprintf(":%d", g.Conf().Run.HTTPPort),
 		Handler: router,
 	})
+
+	common.Close()
 }

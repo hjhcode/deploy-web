@@ -102,11 +102,11 @@ func httpHandlerConstruct(c *gin.Context) {
 
 //url?size=ssss
 func httpHandlerProjectShow(c *gin.Context) {
-	nums := c.Query("size")
-	//nums := c.Query("")
+	//nums := c.Query("size")
+	nums := c.Query("")
 	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("requestpage")
-	//requestPage := c.Query("")
+	//requestPage := c.Query("requestpage")
+	requestPage := c.Query("")
 	start, _ := strconv.Atoi(requestPage)
 	projectList, num := managers.GetAllProject(size, start)
 	response := map[string]interface{}{
@@ -135,8 +135,8 @@ func httpHandlerProjectSearch(c *gin.Context) {
 }
 
 func httpHandlerProjectDetail(c *gin.Context) {
-	//id := c.Query("")
-	id := c.Query("id")
+	id := c.Query("")
+	//id := c.Query("id")
 	projectId, _ := strconv.ParseInt(id, 10, 64)
 	project := managers.GetOneProject(projectId)
 	c.JSON(http.StatusOK, base.Success(project))

@@ -23,8 +23,9 @@ func Auth() gin.HandlerFunc {
 			if flag, userId := components.RequireTokenAuthentication(token); flag == true {
 				c.Set("userId", userId)
 				c.Next()
+				return
 			}
 		}
-		c.AbortWithStatusJSON(http.StatusForbidden, base.Fail("authv1 failure"))
+		c.AbortWithStatusJSON(http.StatusForbidden, base.Fail("auth failure."))
 	}
 }

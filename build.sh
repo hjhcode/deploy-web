@@ -3,7 +3,7 @@
 workspace=$(cd $(dirname $0) && pwd -P)
 cd $workspace
 
-app="deploy-web"
+app=deploy-web
 cfg=./cfg
 
 function build() {
@@ -11,10 +11,11 @@ function build() {
 
 	echo "`go version`"
 	go build -o $app
-    if [[ $running -gt 0 ]]; then
-            echo "failure to go build"
-            exit 0
-    fi
+	if [[ $running -gt 0 ]]; then
+        	echo "failure to go build"
+        	exit 0
+	fi
+
 }
 
 function make_output {

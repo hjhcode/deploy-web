@@ -5,7 +5,7 @@ import (
 )
 
 func Register(router *gin.RouterGroup) {
-
-	RegisterProject(router)
+	RegisterAccount(router)
 	RegisterService(router)
+	RegisterProject(router)
 }
