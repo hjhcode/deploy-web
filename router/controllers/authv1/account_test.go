@@ -23,7 +23,7 @@ func TestLogin(t *testing.T) {
 
 	resp, err := client.Post("http://127.0.0.1:8000/apiv1/login",
 		"application/x-www-form-urlencoded",
-		strings.NewReader("email=asdfr.com&password=asdfr"))
+		strings.NewReader("name=asdfr.com&password=asdfr"))
 
 	resp, err = client.Post("http://127.0.0.1:8000/authv1/quit",
 		"application/x-www-form-urlencoded", strings.NewReader(""))

@@ -15,7 +15,7 @@ func RegisterAccount(router *gin.RouterGroup) {
 }
 
 type AccountParam struct {
-	Email    string `form:"email" json:"email"`
+	Name     string `form:"name" json:"name"`
 	Password string `form:"password" json:"password"`
 }
 
@@ -25,7 +25,7 @@ func httpHandlerLogin(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	token, err := managers.AccountLogin(account.Email, account.Password)
+	token, err := managers.AccountLogin(account.Name, account.Password)
 	if err != nil {
 		c.JSON(http.StatusOK, base.Fail(err.Error()))
 		return
@@ -47,7 +47,7 @@ func httpHandlerRegister(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	userId, err := managers.AccountRegister(account.Email, account.Password)
+	userId, err := managers.AccountRegister(account.Name, account.Password)
 	if err != nil {
 		c.JSON(http.StatusOK, base.Fail(err.Error()))
 		return
