@@ -81,3 +81,23 @@ func (this Deploy) QueryAllDeploy() ([]*Deploy, error) {
 	}
 	return deployList, err
 }
+
+//查询(分页查询所有记录）
+func (this Deploy) QueryAllDeployByPage(size int, start int) ([]*Deploy, error) {
+	deployList := make([]*Deploy, 0)
+	err := OrmWeb.Limit(size, start).Find(&deployList)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployList, nil
+}
+
+func (this Deploy) CountAllDeployByPage() (int64, error) {
+	sum, err := OrmWeb.Count(&Deploy{})
+	if err != nil {
+		return 0, nil
+	}
+
+	return sum, nil
+}

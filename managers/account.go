@@ -57,5 +57,8 @@ func getCreator(accountId int64) string {
 	if err != nil {
 		panic(err.Error())
 	}
+	if account == nil {
+		return ""
+	}
 	return account.Name
 }

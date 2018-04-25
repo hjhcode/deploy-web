@@ -85,6 +85,7 @@ func ConstructProject(accountId int64, projectID int64) (bool, string) {
 	}
 	constructRecord.ConstructStatu = 1 //构建中
 	constructRecord.ConstructStart = time.Now().Unix()
+	constructRecord.ConstructEnd = 0
 	_, err := models.ConstructRecord{}.Add(constructRecord)
 	if err != nil {
 		panic(err.Error())
@@ -97,6 +98,10 @@ func GetAllProject(size int, requestPage int) ([]map[string]interface{}, int) {
 	projectList, err := models.Project{}.QueryAllProjectByPage(size, (requestPage-1)*size)
 	if err != nil {
 		panic(err.Error())
+	}
+
+	if projectList == nil {
+		return nil, 0
 	}
 
 	var projectLists []map[string]interface{}
@@ -131,6 +136,10 @@ func GetProjectByParam(projectName string, size int, requestPage int) ([]map[str
 		panic(err.Error())
 	}
 
+	if projectList == nil {
+		return nil, 0
+	}
+
 	var projectLists []map[string]interface{}
 	for i := 0; i < len(projectList); i++ {
 		createtime := time.Unix(projectList[i].CreateDate, 0).Format("2006-01-02 15:04:05")
@@ -151,7 +160,7 @@ func GetProjectByParam(projectName string, size int, requestPage int) ([]map[str
 		panic(err.Error())
 	}
 
-	return nil, int(count)
+	return projectLists, int(count)
 }
 
 func GetOneProject(projectId int64) map[string]interface{} {
@@ -237,4 +246,17 @@ func getProjectMember(projectMember string) string {
 		}
 	}
 	return member
+}
+
+func getProjectName(projectId int64) string {
+	project, err := models.Project{}.GetById(projectId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if project == nil {
+		return ""
+	}
+
+	return project.ProjectName
 }

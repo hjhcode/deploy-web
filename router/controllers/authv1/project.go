@@ -56,8 +56,8 @@ func httpHandlerProjectDel(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	accountId := base.UserId(c)
-	//var accountId int64 = 2
+	//accountId := base.UserId(c)
+	var accountId int64 = 2
 	if result, mess := managers.DelProject(project.ProjectId, accountId); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
 		return
@@ -100,43 +100,45 @@ func httpHandlerConstruct(c *gin.Context) {
 	c.JSON(http.StatusOK, base.Success())
 }
 
-//url?size=ssss
 func httpHandlerProjectShow(c *gin.Context) {
-	//nums := c.Query("size")
-	nums := c.Query("")
+	nums := c.Query("size")
 	size, _ := strconv.Atoi(nums)
-	//requestPage := c.Query("requestpage")
-	requestPage := c.Query("")
+	requestPage := c.Query("page")
 	start, _ := strconv.Atoi(requestPage)
 	projectList, num := managers.GetAllProject(size, start)
-	response := map[string]interface{}{
-		"request_page": requestPage,
-		"total_page":   num,
-		"datas":        projectList,
+	if projectList == nil {
+		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
+	} else {
+		response := map[string]interface{}{
+			"request_page": start,
+			"total_page":   num,
+			"datas":        projectList,
+		}
+		c.JSON(http.StatusOK, base.Success(response))
 	}
-
-	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerProjectSearch(c *gin.Context) {
-	nums := c.Query("")
+	nums := c.Query("size")
 	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("")
+	requestPage := c.Query("page")
 	start, _ := strconv.Atoi(requestPage)
-	projectName := c.Query("")
+	projectName := c.Query("name")
 	projectList, num := managers.GetProjectByParam(projectName, size, start)
-	response := map[string]interface{}{
-		"request_page": requestPage,
-		"total_page":   num,
-		"datas":        projectList,
+	if projectList == nil {
+		c.JSON(http.StatusOK, base.Fail("No relevant content was found"))
+	} else {
+		response := map[string]interface{}{
+			"request_page": start,
+			"total_page":   num,
+			"datas":        projectList,
+		}
+		c.JSON(http.StatusOK, base.Success(response))
 	}
-
-	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerProjectDetail(c *gin.Context) {
-	id := c.Query("")
-	//id := c.Query("id")
+	id := c.Query("id")
 	projectId, _ := strconv.ParseInt(id, 10, 64)
 	project := managers.GetOneProject(projectId)
 	c.JSON(http.StatusOK, base.Success(project))

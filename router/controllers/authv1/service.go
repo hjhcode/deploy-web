@@ -18,6 +18,7 @@ func RegisterService(router *gin.RouterGroup) {
 	router.GET("service/show", httpHandlerServiceShow)
 	router.GET("service/search", httpHandlerServiceSearch)
 	router.GET("service/detail", httpHandlerServiceDetail)
+	router.GET("service/rollback", httpHandlerServiceBack)
 }
 
 type ServiceParam struct {
@@ -98,42 +99,49 @@ func httpHandlerServiceDeploy(c *gin.Context) {
 }
 
 func httpHandlerServiceShow(c *gin.Context) {
-	nums := c.Query("")
-	//nums := c.Query("size")
+	nums := c.Query("size")
 	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("")
-	//requestPage := c.Query("requestpage")
+	requestPage := c.Query("page")
 	start, _ := strconv.Atoi(requestPage)
 	serviceList, num := managers.GetAllService(size, start)
-	response := map[string]interface{}{
-		"request_page": requestPage,
-		"total_page":   num,
-		"data":         serviceList,
+	if serviceList == nil {
+		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
+	} else {
+		response := map[string]interface{}{
+			"request_page": start,
+			"total_page":   num,
+			"data":         serviceList,
+		}
+		c.JSON(http.StatusOK, base.Success(response))
 	}
-
-	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerServiceSearch(c *gin.Context) {
-	nums := c.Query("")
+	nums := c.Query("size")
 	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("")
+	requestPage := c.Query("page")
 	start, _ := strconv.Atoi(requestPage)
-	serviceName := c.Query("")
+	serviceName := c.Query("name")
 	serviceList, num := managers.GetServiceByParam(serviceName, size, start)
-	response := map[string]interface{}{
-		"request_page": requestPage,
-		"total_page":   num,
-		"data":         serviceList,
+	if serviceList == nil {
+		c.JSON(http.StatusOK, base.Fail("No relevant content was found"))
+	} else {
+		response := map[string]interface{}{
+			"request_page": start,
+			"total_page":   num,
+			"data":         serviceList,
+		}
+		c.JSON(http.StatusOK, base.Success(response))
 	}
-
-	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerServiceDetail(c *gin.Context) {
-	id := c.Query("")
-	//id := c.Query("id")
+	id := c.Query("id")
 	serviceId, _ := strconv.ParseInt(id, 10, 64)
 	service := managers.GetOneService(serviceId)
 	c.JSON(http.StatusOK, base.Success(service))
+}
+
+func httpHandlerServiceBack(c *gin.Context) {
+	//直接向server端发送回滚请求
 }

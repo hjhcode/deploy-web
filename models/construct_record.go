@@ -80,3 +80,23 @@ func (this ConstructRecord) QueryAllConstructRecord() ([]*ConstructRecord, error
 	}
 	return constructRecordList, nil
 }
+
+//查询(分页查询所有记录）
+func (this ConstructRecord) QueryAllConstructByPage(size int, start int) ([]*ConstructRecord, error) {
+	constructList := make([]*ConstructRecord, 0)
+	err := OrmWeb.Limit(size, start).Find(&constructList)
+	if err != nil {
+		return nil, err
+	}
+
+	return constructList, nil
+}
+
+func (this ConstructRecord) CountAllConstructByPage() (int64, error) {
+	sum, err := OrmWeb.Count(&ConstructRecord{})
+	if err != nil {
+		return 0, nil
+	}
+
+	return sum, nil
+}

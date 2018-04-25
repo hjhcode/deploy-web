@@ -8,4 +8,6 @@ func Register(router *gin.RouterGroup) {
 	RegisterAccount(router)
 	RegisterService(router)
 	RegisterProject(router)
+	RegisterConstructRecord(router)
+	RegisterDeploy(router)
 }

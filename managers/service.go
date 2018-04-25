@@ -91,6 +91,7 @@ func DeployService(serviceId int64, accountId int64) (bool, string) {
 		DockerConfig: service.DockerConfig,
 	}
 	deploy.DeployStart = time.Now().Unix()
+	deploy.DeployEnd = 0
 	deploy.DeployStatu = 1 //部署中
 	_, err := models.Deploy{}.Add(deploy)
 	if err != nil {
@@ -104,6 +105,10 @@ func GetAllService(size int, requestPage int) ([]map[string]interface{}, int) {
 	serviceList, err := models.Service{}.QueryAllServiceByPage(size, (requestPage-1)*size)
 	if err != nil {
 		panic(err.Error())
+	}
+
+	if serviceList == nil {
+		return nil, 0
 	}
 
 	var serviceLists []map[string]interface{}
@@ -132,6 +137,10 @@ func GetServiceByParam(serviceName string, size int, requestPage int) ([]map[str
 	serviceList, err := models.Service{}.QueryServiceBySearch(serviceName, size, (requestPage-1)*size)
 	if err != nil {
 		panic(err.Error())
+	}
+
+	if serviceList == nil {
+		return nil, 0
 	}
 
 	var serviceLists []map[string]interface{}
@@ -168,7 +177,7 @@ func GetOneService(serviceId int64) map[string]interface{} {
 	services["account_id"] = getCreator(service.AccountId)
 	services["service_name"] = service.ServiceName
 	services["service_describe"] = service.ServiceDescribe
-	services[" host_list"] = service.HostList
+	services["host_list"] = service.HostList
 	services["mirror_list"] = getMirrorName(service.MirrorList)
 	services["docker_config"] = service.DockerConfig
 	services["create_date"] = createtime
@@ -244,4 +253,17 @@ func getServiceMember(serviceMember string) string {
 		}
 	}
 	return member
+}
+
+func getServiceName(serviceId int64) string {
+	service, err := models.Service{}.GetById(serviceId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if service == nil {
+		return ""
+	}
+
+	return service.ServiceName
 }
