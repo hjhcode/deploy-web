@@ -34,6 +34,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/bitly/go-nsq",
+			"repository": "https://github.com/bitly/go-nsq",
+			"vcs": "git",
+			"revision": "8c1ff52dff6fd3ecc19c418649bc643b18e862fc",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/dgrijalva/jwt-go",
 			"repository": "https://github.com/dgrijalva/jwt-go",
 			"vcs": "git",
@@ -113,6 +121,14 @@
 			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
 			"branch": "master",
 			"path": "ptypes/any",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/golang/snappy",
+			"repository": "https://github.com/golang/snappy",
+			"vcs": "git",
+			"revision": "553a641470496b2327abcac10b36396bd98e45c9",
+			"branch": "master",
 			"notests": true
 		},
 		{

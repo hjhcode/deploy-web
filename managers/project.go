@@ -7,6 +7,9 @@ import (
 
 	"time"
 
+	"regexp"
+
+	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
@@ -35,6 +38,7 @@ func AddNewProject(accountId int64, projectName string, projectDescribe string, 
 		ProjectDescribe: projectDescribe,
 		GitDockerPath:   gitDockerPath,
 	}
+
 	if projectMember != "" {
 		project.ProjectMember = projectMember
 	}
@@ -79,6 +83,15 @@ func ConstructProject(accountId int64, projectID int64) (bool, string) {
 	if !result {
 		return false, "You have no authority"
 	}
+	record, err := models.ConstructRecord{}.GetByProjectId(projectID)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if record != nil && record.ConstructStatu == 1 {
+		return false, "Project is building"
+	}
+
 	constructRecord := &models.ConstructRecord{
 		AccountId: accountId,
 		ProjectId: projectID,
@@ -86,16 +99,50 @@ func ConstructProject(accountId int64, projectID int64) (bool, string) {
 	constructRecord.ConstructStatu = 1 //构建中
 	constructRecord.ConstructStart = time.Now().Unix()
 	constructRecord.ConstructEnd = 0
-	_, err := models.ConstructRecord{}.Add(constructRecord)
+	id, err := models.ConstructRecord{}.Add(constructRecord)
 	if err != nil {
 		panic(err.Error())
 	}
-
+	mess := &components.SendMess{SubmitType: "construct", SubmitId: id}
+	components.Send("project", mess)
 	return true, ""
 }
 
-func GetAllProject(size int, requestPage int) ([]map[string]interface{}, int) {
-	projectList, err := models.Project{}.QueryAllProjectByPage(size, (requestPage-1)*size)
+//func GetAllProjectByPage(size int, requestPage int) ([]map[string]interface{}, int) {
+//	projectList, err := models.Project{}.QueryAllProjectByPage(size, (requestPage-1)*size)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	if projectList == nil {
+//		return nil, 0
+//	}
+//
+//	var projectLists []map[string]interface{}
+//	for i := 0; i < len(projectList); i++ {
+//		createtime := time.Unix(projectList[i].CreateDate, 0).Format("2006-01-02 15:04:05")
+//		updatetime := time.Unix(projectList[i].UpdateDate, 0).Format("2006-01-02 15:04:05")
+//		projects := make(map[string]interface{})
+//		projects["id"] = projectList[i].Id
+//		projects["account_id"] = getCreator(projectList[i].AccountId)
+//		projects["project_name"] = projectList[i].ProjectName
+//		projects["project_describe"] = projectList[i].ProjectDescribe
+//		projects["git_docker_path"] = projectList[i].GitDockerPath
+//		projects["create_date"] = createtime
+//		projects["update_date"] = updatetime
+//		projectLists = append(projectLists, projects)
+//	}
+//
+//	count, err := models.Project{}.CountAllProject()
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	return projectLists, int(count)
+//}
+
+func GetAllProject() ([]map[string]interface{}, int) {
+	projectList, err := models.Project{}.QueryAllProject()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -119,7 +166,7 @@ func GetAllProject(size int, requestPage int) ([]map[string]interface{}, int) {
 		projectLists = append(projectLists, projects)
 	}
 
-	count, err := models.Project{}.CountAllProjectByPage()
+	count, err := models.Project{}.CountAllProject()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -127,11 +174,9 @@ func GetAllProject(size int, requestPage int) ([]map[string]interface{}, int) {
 	return projectLists, int(count)
 }
 
-func GetProjectByParam(projectName string, size int, requestPage int) ([]map[string]interface{},
-	int) {
+func GetProjectByParam(projectName string) ([]map[string]interface{}, int) {
 	project := &models.Project{IsDel: 0}
-	projectList, err := models.Project{}.QueryProjectBySearch(projectName, project, size,
-		(requestPage-1)*size)
+	projectList, err := models.Project{}.QueryProjectBySearch(projectName, project)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -259,4 +304,14 @@ func getProjectName(projectId int64) string {
 	}
 
 	return project.ProjectName
+}
+
+func MatchGitDockerPath(out string) bool {
+	paths := `^((https|http)?:\/\/github.com\/)[^\s]+`
+	reg, _ := regexp.Compile(paths)
+	loss := reg.FindString(out)
+	if loss == "" {
+		return false
+	}
+	return true
 }

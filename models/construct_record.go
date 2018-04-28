@@ -100,3 +100,15 @@ func (this ConstructRecord) CountAllConstructByPage() (int64, error) {
 
 	return sum, nil
 }
+
+func (this ConstructRecord) GetByProjectId(projectId int64) (*ConstructRecord, error) {
+	constructRecord := &ConstructRecord{ProjectId: projectId}
+	has, err := OrmWeb.Desc("id").Get(constructRecord)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return constructRecord, nil
+}

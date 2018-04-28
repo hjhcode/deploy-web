@@ -87,7 +87,7 @@ func (this Project) QueryByAccountId(accountId int64) ([]*Project, error) {
 //查询(查询所有工程）
 func (this Project) QueryAllProject() ([]*Project, error) {
 	projectList := make([]*Project, 0)
-	err := OrmWeb.Find(&projectList)
+	err := OrmWeb.Where("is_del != ?", 1).Find(&projectList)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (this Project) QueryAllProjectByPage(size int, start int) ([]*Project, erro
 	return projectList, nil
 }
 
-func (this Project) CountAllProjectByPage() (int64, error) {
+func (this Project) CountAllProject() (int64, error) {
 	sum, err := OrmWeb.Where("is_del != ?", 1).Count(&Project{})
 	if err != nil {
 		return 0, err
@@ -113,10 +113,9 @@ func (this Project) CountAllProjectByPage() (int64, error) {
 }
 
 //查询(根据工程名查询）
-func (this Project) QueryProjectBySearch(projectName string, project *Project, size int, start int) ([]*Project, error) {
+func (this Project) QueryProjectBySearch(projectName string, project *Project) ([]*Project, error) {
 	projectList := make([]*Project, 0)
-	err := OrmWeb.Where("project_name like ?", "%"+projectName+"%").
-		Limit(size, start).Find(&projectList, project)
+	err := OrmWeb.Where("project_name like ?", "%"+projectName+"%").Find(&projectList, project)
 	if err != nil {
 		return nil, err
 	}

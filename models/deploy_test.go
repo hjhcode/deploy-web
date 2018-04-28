@@ -43,3 +43,12 @@ func TestDeployGetById(t *testing.T) {
 		t.Error("GetById() failed", getDeploy, "!=", deploy)
 	}
 }
+
+func TestDeployGetByServiceId(t *testing.T) {
+	InitAllInTest()
+	deploy, err := Deploy{}.GetByServiceId(1)
+	if err != nil {
+		t.Error("GetByDeployId() failed.Error:", err)
+	}
+	t.Log(deploy)
+}

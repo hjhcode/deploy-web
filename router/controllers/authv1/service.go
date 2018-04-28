@@ -99,37 +99,27 @@ func httpHandlerServiceDeploy(c *gin.Context) {
 }
 
 func httpHandlerServiceShow(c *gin.Context) {
-	nums := c.Query("size")
-	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("page")
-	start, _ := strconv.Atoi(requestPage)
-	serviceList, num := managers.GetAllService(size, start)
+	serviceList, num := managers.GetAllService()
 	if serviceList == nil {
 		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
 	} else {
 		response := map[string]interface{}{
-			"request_page": start,
-			"total_page":   num,
-			"data":         serviceList,
+			"total_page": num,
+			"data":       serviceList,
 		}
 		c.JSON(http.StatusOK, base.Success(response))
 	}
 }
 
 func httpHandlerServiceSearch(c *gin.Context) {
-	nums := c.Query("size")
-	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("page")
-	start, _ := strconv.Atoi(requestPage)
 	serviceName := c.Query("name")
-	serviceList, num := managers.GetServiceByParam(serviceName, size, start)
+	serviceList, num := managers.GetServiceByParam(serviceName)
 	if serviceList == nil {
 		c.JSON(http.StatusOK, base.Fail("No relevant content was found"))
 	} else {
 		response := map[string]interface{}{
-			"request_page": start,
-			"total_page":   num,
-			"data":         serviceList,
+			"total_page": num,
+			"data":       serviceList,
 		}
 		c.JSON(http.StatusOK, base.Success(response))
 	}

@@ -101,3 +101,15 @@ func (this Deploy) CountAllDeployByPage() (int64, error) {
 
 	return sum, nil
 }
+
+func (this Deploy) GetByServiceId(serviceId int64) (*Deploy, error) {
+	deploy := &Deploy{ServiceId: serviceId}
+	has, err := OrmWeb.Desc("id").Get(deploy)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return deploy, nil
+}

@@ -45,3 +45,12 @@ func TestConstructRecordGetById(t *testing.T) {
 		t.Error("GetById() failed", getConstructRecord, "!=", constructRecord)
 	}
 }
+
+func TestConstructRecordGetByProjectId(t *testing.T) {
+	InitAllInTest()
+	record, err := ConstructRecord{}.GetByProjectId(1)
+	if err != nil {
+		t.Error("GetByProjectId() failed.Error:", err)
+	}
+	t.Log(record)
+}

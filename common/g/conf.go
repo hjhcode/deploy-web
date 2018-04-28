@@ -14,6 +14,7 @@ type Config struct {
 	Log   LogConfig   `toml:"log"`
 	Mysql MysqlConfig `toml:"mysql"`
 	Jwt   JwtConfig   `toml:"jwt"`
+	Nsq   NsqConfig   `toml:"nsq"`
 }
 
 type RunConfig struct {
@@ -40,6 +41,10 @@ type MysqlConfig struct {
 type JwtConfig struct {
 	EncodeMethod     string `toml:"encodeMethod"`
 	MaxEffectiveTime int64  `toml:"maxEffectiveTime"`
+}
+
+type NsqConfig struct {
+	Address []string `toml:"address"`
 }
 
 var (

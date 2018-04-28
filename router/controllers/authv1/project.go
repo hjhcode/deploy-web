@@ -101,37 +101,27 @@ func httpHandlerConstruct(c *gin.Context) {
 }
 
 func httpHandlerProjectShow(c *gin.Context) {
-	nums := c.Query("size")
-	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("page")
-	start, _ := strconv.Atoi(requestPage)
-	projectList, num := managers.GetAllProject(size, start)
+	projectList, num := managers.GetAllProject()
 	if projectList == nil {
 		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
 	} else {
 		response := map[string]interface{}{
-			"request_page": start,
-			"total_page":   num,
-			"datas":        projectList,
+			"total_page": num,
+			"datas":      projectList,
 		}
 		c.JSON(http.StatusOK, base.Success(response))
 	}
 }
 
 func httpHandlerProjectSearch(c *gin.Context) {
-	nums := c.Query("size")
-	size, _ := strconv.Atoi(nums)
-	requestPage := c.Query("page")
-	start, _ := strconv.Atoi(requestPage)
 	projectName := c.Query("name")
-	projectList, num := managers.GetProjectByParam(projectName, size, start)
+	projectList, num := managers.GetProjectByParam(projectName)
 	if projectList == nil {
 		c.JSON(http.StatusOK, base.Fail("No relevant content was found"))
 	} else {
 		response := map[string]interface{}{
-			"request_page": start,
-			"total_page":   num,
-			"datas":        projectList,
+			"total_page": num,
+			"datas":      projectList,
 		}
 		c.JSON(http.StatusOK, base.Success(response))
 	}

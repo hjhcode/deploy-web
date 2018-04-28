@@ -6,6 +6,7 @@ import (
 
 	"time"
 
+	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
@@ -14,7 +15,8 @@ func DelService(serviceId int64, accountId int64) (bool, string) {
 	if !result {
 		return false, "You have no authority"
 	}
-	err := models.Service{}.Remove(serviceId)
+	service := &models.Service{Id: serviceId, IsDel: 1}
+	err := models.Service{}.Update(service)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -82,6 +84,16 @@ func DeployService(serviceId int64, accountId int64) (bool, string) {
 	if !result {
 		return false, "You have no authority"
 	}
+
+	deployResult, err := models.Deploy{}.GetByServiceId(serviceId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if deployResult != nil && deployResult.DeployStatu == 1 {
+		return false, "Service is deploying"
+	}
+
 	service, _ := models.Service{}.GetById(serviceId)
 	deploy := &models.Deploy{
 		ServiceId:    serviceId,
@@ -93,16 +105,50 @@ func DeployService(serviceId int64, accountId int64) (bool, string) {
 	deploy.DeployStart = time.Now().Unix()
 	deploy.DeployEnd = 0
 	deploy.DeployStatu = 1 //部署中
-	_, err := models.Deploy{}.Add(deploy)
+	id, err := models.Deploy{}.Add(deploy)
 	if err != nil {
 		panic(err.Error())
 	}
+	mess := &components.SendMess{SubmitType: "deploy", SubmitId: id}
+	components.Send("service", mess)
 
 	return true, ""
 }
 
-func GetAllService(size int, requestPage int) ([]map[string]interface{}, int) {
-	serviceList, err := models.Service{}.QueryAllServiceByPage(size, (requestPage-1)*size)
+//func GetAllServiceByPage(size int, requestPage int) ([]map[string]interface{}, int) {
+//	serviceList, err := models.Service{}.QueryAllServiceByPage(size, (requestPage-1)*size)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	if serviceList == nil {
+//		return nil, 0
+//	}
+//
+//	var serviceLists []map[string]interface{}
+//	for i := 0; i < len(serviceList); i++ {
+//		createtime := time.Unix(serviceList[i].CreateDate, 0).Format("2006-01-02 15:04:05")
+//		updatetime := time.Unix(serviceList[i].UpdateDate, 0).Format("2006-01-02 15:04:05")
+//		services := make(map[string]interface{})
+//		services["id"] = serviceList[i].Id
+//		services["account_id"] = getCreator(serviceList[i].AccountId)
+//		services["service_name"] = serviceList[i].ServiceName
+//		services["service_describe"] = serviceList[i].ServiceDescribe
+//		services["create_date"] = createtime
+//		services["update_date"] = updatetime
+//		serviceLists = append(serviceLists, services)
+//	}
+//
+//	count, err := models.Service{}.CountAllService()
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	return serviceLists, int(count)
+//}
+
+func GetAllService() ([]map[string]interface{}, int) {
+	serviceList, err := models.Service{}.QueryAllService()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -125,7 +171,7 @@ func GetAllService(size int, requestPage int) ([]map[string]interface{}, int) {
 		serviceLists = append(serviceLists, services)
 	}
 
-	count, err := models.Service{}.CountAllServiceByPage()
+	count, err := models.Service{}.CountAllService()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -133,8 +179,9 @@ func GetAllService(size int, requestPage int) ([]map[string]interface{}, int) {
 	return serviceLists, int(count)
 }
 
-func GetServiceByParam(serviceName string, size int, requestPage int) ([]map[string]interface{}, int) {
-	serviceList, err := models.Service{}.QueryServiceBySearch(serviceName, size, (requestPage-1)*size)
+func GetServiceByParam(serviceName string) ([]map[string]interface{}, int) {
+	service := &models.Service{IsDel: 0}
+	serviceList, err := models.Service{}.QueryServiceBySearch(serviceName, service)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -157,7 +204,7 @@ func GetServiceByParam(serviceName string, size int, requestPage int) ([]map[str
 		serviceLists = append(serviceLists, services)
 	}
 
-	count, err := models.Service{}.CountServiceBySearch(serviceName)
+	count, err := models.Service{}.CountServiceBySearch(serviceName, service)
 	if err != nil {
 		panic(err.Error())
 	}

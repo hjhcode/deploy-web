@@ -20,3 +20,6 @@ webAddr = "root:qweszxcsq@tcp(localhost:3306)/deploy_web?charset=utf8&loc=Asia%2
 [jwt]
 encodeMethod = "HS256" # [HS256, HS384, HS512]
 maxEffectiveTime = 3  # 最大存活时间:天
+
+[nsq]
+address = ["xupt2.fightcoder.com:9002", "xupt2.fightcoder.com:9002"]
