@@ -18,7 +18,6 @@ func RegisterService(router *gin.RouterGroup) {
 	router.GET("service/show", httpHandlerServiceShow)
 	router.GET("service/search", httpHandlerServiceSearch)
 	router.GET("service/detail", httpHandlerServiceDetail)
-	router.GET("service/rollback", httpHandlerServiceBack)
 }
 
 type ServiceParam struct {
@@ -82,22 +81,6 @@ func httpHandlerServiceUpdate(c *gin.Context) {
 	c.JSON(http.StatusOK, base.Success())
 }
 
-func httpHandlerServiceDeploy(c *gin.Context) {
-	var service ServiceIdParam
-	err := c.BindJSON(&service)
-	if err != nil {
-		panic(err.Error())
-	}
-	accountId := base.UserId(c)
-	//var accountId int64 = 1
-	if result, mess := managers.DeployService(service.ServiceId, accountId); !result {
-		c.JSON(http.StatusOK, base.Fail(mess))
-		return
-	}
-
-	c.JSON(http.StatusOK, base.Success())
-}
-
 func httpHandlerServiceShow(c *gin.Context) {
 	serviceList, num := managers.GetAllService()
 	if serviceList == nil {
@@ -132,6 +115,17 @@ func httpHandlerServiceDetail(c *gin.Context) {
 	c.JSON(http.StatusOK, base.Success(service))
 }
 
-func httpHandlerServiceBack(c *gin.Context) {
-	//直接向server端发送回滚请求
+func httpHandlerServiceDeploy(c *gin.Context) {
+	var service ServiceIdParam
+	err := c.BindJSON(&service)
+	if err != nil {
+		panic(err.Error())
+	}
+	accountId := base.UserId(c)
+	//var accountId int64 = 1
+	if result, mess, id := managers.DeployService(service.ServiceId, accountId); !result {
+		c.JSON(http.StatusOK, base.Fail(mess))
+	} else {
+		c.JSON(http.StatusOK, base.Success(id))
+	}
 }

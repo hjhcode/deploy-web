@@ -75,7 +75,7 @@ func (this Deploy) QueryByAccountId(accountId int64) ([]*Deploy, error) {
 //查询(所有部署）
 func (this Deploy) QueryAllDeploy() ([]*Deploy, error) {
 	deployList := make([]*Deploy, 0)
-	err := OrmWeb.Find(&deployList)
+	err := OrmWeb.Desc("id").Find(&deployList)
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +104,18 @@ func (this Deploy) CountAllDeployByPage() (int64, error) {
 
 func (this Deploy) GetByServiceId(serviceId int64) (*Deploy, error) {
 	deploy := &Deploy{ServiceId: serviceId}
+	has, err := OrmWeb.Desc("id").Get(deploy)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return deploy, nil
+}
+
+func (this Deploy) GetDeployBackData(serviceId int64) (*Deploy, error) {
+	deploy := &Deploy{ServiceId: serviceId, DeployStatu: 3}
 	has, err := OrmWeb.Desc("id").Get(deploy)
 	if err != nil {
 		return nil, err

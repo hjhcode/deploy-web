@@ -6,7 +6,6 @@ import (
 
 	"time"
 
-	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
@@ -40,8 +39,25 @@ func AddNewService(accountId int64, serviceName string, serviceDescribe string, 
 	}
 
 	if serviceMember != "" {
-		service.ServiceMember = serviceMember
+		var member string
+		array := strings.Split(serviceMember, ",")
+		for i := 0; i < len(array); i++ {
+			account, err := models.Account{}.GetByName(array[i])
+			if err != nil {
+				panic(err.Error())
+			}
+			if account == nil {
+				return false, "user is not exist"
+			}
+
+			member += strconv.FormatInt(account.Id, 10)
+			if i < len(array)-1 {
+				member += ";"
+			}
+		}
+		service.ServiceMember = member
 	}
+
 	createTime := time.Now().Unix()
 	service.CreateDate = createTime
 	service.UpdateDate = createTime
@@ -68,8 +84,25 @@ func UpdateService(accountId int64, serviceId int64, serviceName string, service
 		DockerConfig:    dockerConfig,
 	}
 	if serviceMember != "" {
-		service.ServiceMember = serviceMember
+		var member string
+		array := strings.Split(serviceMember, ",")
+		for i := 0; i < len(array); i++ {
+			account, err := models.Account{}.GetByName(array[i])
+			if err != nil {
+				panic(err.Error())
+			}
+			if account == nil {
+				return false, "user is not exist"
+			}
+
+			member += strconv.FormatInt(account.Id, 10)
+			if i < len(array)-1 {
+				member += ";"
+			}
+		}
+		service.ServiceMember = member
 	}
+
 	service.UpdateDate = time.Now().Unix()
 	err := models.Service{}.Update(service)
 	if err != nil {
@@ -79,10 +112,10 @@ func UpdateService(accountId int64, serviceId int64, serviceName string, service
 	return true, ""
 }
 
-func DeployService(serviceId int64, accountId int64) (bool, string) {
+func DeployService(serviceId int64, accountId int64) (bool, string, int64) {
 	result := isServiceMember(serviceId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "You have no authority", 0
 	}
 
 	deployResult, err := models.Deploy{}.GetByServiceId(serviceId)
@@ -90,8 +123,8 @@ func DeployService(serviceId int64, accountId int64) (bool, string) {
 		panic(err.Error())
 	}
 
-	if deployResult != nil && deployResult.DeployStatu == 1 {
-		return false, "Service is deploying"
+	if deployResult != nil && (deployResult.DeployStatu == 0 || deployResult.DeployStatu == 1) {
+		return false, "Service is deploying", 0
 	}
 
 	service, _ := models.Service{}.GetById(serviceId)
@@ -102,17 +135,15 @@ func DeployService(serviceId int64, accountId int64) (bool, string) {
 		MirrorList:   service.MirrorList,
 		DockerConfig: service.DockerConfig,
 	}
-	deploy.DeployStart = time.Now().Unix()
+	deploy.DeployStart = 0
 	deploy.DeployEnd = 0
-	deploy.DeployStatu = 1 //部署中
+	deploy.DeployStatu = 0 //待部署
 	id, err := models.Deploy{}.Add(deploy)
 	if err != nil {
 		panic(err.Error())
 	}
-	mess := &components.SendMess{SubmitType: "deploy", SubmitId: id}
-	components.Send("service", mess)
 
-	return true, ""
+	return true, "", id
 }
 
 //func GetAllServiceByPage(size int, requestPage int) ([]map[string]interface{}, int) {
@@ -296,7 +327,7 @@ func getServiceMember(serviceMember string) string {
 		}
 		member += account.Name
 		if i < len(array)-1 {
-			member += ";"
+			member += ","
 		}
 	}
 	return member

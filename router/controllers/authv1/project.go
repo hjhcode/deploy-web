@@ -11,11 +11,10 @@ import (
 )
 
 func RegisterProject(router *gin.RouterGroup) {
-
 	router.POST("project/add", httpHandlerProjectAdd)
 	router.POST("project/del", httpHandlerProjectDel)
 	router.POST("project/update", httpHandlerProjectUpdate)
-	router.POST("project/construct", httpHandlerConstruct)
+	router.POST("project/construct", httpHandlerConstruct) //创建构建任务
 	router.GET("project/show", httpHandlerProjectShow)     //分页展示工程
 	router.GET("project/search", httpHandlerProjectSearch) //根据工程名查询
 	router.GET("project/detail", httpHandlerProjectDetail) //单个工程详情
@@ -39,8 +38,8 @@ func httpHandlerProjectAdd(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	accountId := base.UserId(c)
-	//var accountId int64 = 2
+	//accountId := base.UserId(c)
+	var accountId int64 = 1
 	if result, mess := managers.AddNewProject(accountId, project.ProjectName, project.ProjectDescribe,
 		project.GitDockerPath, project.ProjectMember); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -57,7 +56,7 @@ func httpHandlerProjectDel(c *gin.Context) {
 		panic(err.Error())
 	}
 	//accountId := base.UserId(c)
-	var accountId int64 = 2
+	var accountId int64 = 1
 	if result, mess := managers.DelProject(project.ProjectId, accountId); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
 		return
@@ -73,26 +72,10 @@ func httpHandlerProjectUpdate(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	accountId := base.UserId(c)
-	//var accountId int64 = 2
+	//accountId := base.UserId(c)
+	var accountId int64 = 1
 	if result, mess := managers.UpdateProject(accountId, project.ProjectId, project.ProjectName,
 		project.ProjectDescribe, project.GitDockerPath, project.ProjectMember); !result {
-		c.JSON(http.StatusOK, base.Fail(mess))
-		return
-	}
-
-	c.JSON(http.StatusOK, base.Success())
-}
-
-func httpHandlerConstruct(c *gin.Context) {
-	var project ProjectIdParam
-	err := c.BindJSON(&project)
-	if err != nil {
-		panic(err.Error())
-	}
-	accountId := base.UserId(c)
-	//var accountId int64 = 2
-	if result, mess := managers.ConstructProject(accountId, project.ProjectId); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
 		return
 	}
@@ -132,4 +115,20 @@ func httpHandlerProjectDetail(c *gin.Context) {
 	projectId, _ := strconv.ParseInt(id, 10, 64)
 	project := managers.GetOneProject(projectId)
 	c.JSON(http.StatusOK, base.Success(project))
+}
+
+//点击工程页面构建按钮触发
+func httpHandlerConstruct(c *gin.Context) {
+	var project ProjectIdParam
+	err := c.BindJSON(&project)
+	if err != nil {
+		panic(err.Error())
+	}
+	//accountId := base.UserId(c)
+	var accountId int64 = 1
+	if result, mess, id := managers.ConstructProject(accountId, project.ProjectId); !result {
+		c.JSON(http.StatusOK, base.Fail(mess))
+	} else {
+		c.JSON(http.StatusOK, base.Success(id))
+	}
 }

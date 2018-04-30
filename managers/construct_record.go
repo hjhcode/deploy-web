@@ -3,11 +3,12 @@ package managers
 import (
 	"time"
 
+	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
-func GetAllConstructRecord(size int, requestPage int) ([]map[string]interface{}, int) {
-	constrcuctList, err := models.ConstructRecord{}.QueryAllConstructByPage(size, (requestPage-1)*size)
+func GetAllConstructRecord() ([]map[string]interface{}, int) {
+	constrcuctList, err := models.ConstructRecord{}.QueryAllConstructRecord()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -37,4 +38,70 @@ func GetAllConstructRecord(size int, requestPage int) ([]map[string]interface{},
 	}
 
 	return constrcuctLists, int(count)
+}
+
+//构建页获取详情数据
+func GetConstructProjectData(constructId int64) map[string]interface{} {
+
+	constructs, err := models.ConstructRecord{}.GetById(constructId)
+	if err != nil {
+		panic(err)
+	}
+
+	if constructs == nil {
+		return nil
+	}
+
+	project, err := models.Project{}.GetById(constructs.ProjectId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if project == nil {
+		return nil
+	}
+
+	lists := make(map[string]interface{})
+	createtime := time.Unix(project.CreateDate, 0).Format("2006-01-02 15:04:05")
+	updatetime := time.Unix(project.UpdateDate, 0).Format("2006-01-02 15:04:05")
+	lists["project_name"] = project.ProjectName
+	lists["project_describe"] = project.ProjectDescribe
+	lists["git_docker_path"] = project.GitDockerPath
+	lists["create_date"] = createtime
+	lists["update_date"] = updatetime
+	lists["account_name"] = getCreator(project.AccountId)
+	lists["construct_statu"] = constructs.ConstructStatu
+	lists["construct_log"] = constructs.ConstructLog
+
+	return lists
+}
+
+func StartConstructProject(accountId int64, constructId int64) (bool, string) {
+
+	record, err := models.ConstructRecord{}.GetById(constructId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	result := isProjectMember(record.ProjectId, accountId)
+	if !result {
+		return false, "You have no authority"
+	}
+
+	constructRecord := &models.ConstructRecord{
+		Id:             constructId,
+		ConstructStatu: 1, //构建中
+		ConstructStart: time.Now().Unix(),
+		ConstructEnd:   0,
+	}
+
+	errs := models.ConstructRecord{}.Update(constructRecord)
+	if errs != nil {
+		panic(err.Error())
+	}
+
+	mess := &components.SendMess{OrderType: 0, DataId: constructId}
+	components.Send("deploy", mess)
+
+	return true, ""
 }

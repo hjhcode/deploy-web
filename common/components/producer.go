@@ -10,8 +10,8 @@ import (
 )
 
 type SendMess struct {
-	SubmitType string `json:"submit_type"`
-	SubmitId   int64  `json:"submit_id"`
+	OrderType int   `json:"order_type"`
+	DataId    int64 `json:"data_id"`
 }
 
 func Send(topic string, sendMess *SendMess) bool {

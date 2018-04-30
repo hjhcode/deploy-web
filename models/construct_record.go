@@ -74,7 +74,7 @@ func (this ConstructRecord) QueryByAccountId(accountId int64) ([]*ConstructRecor
 //查询(所有数据）
 func (this ConstructRecord) QueryAllConstructRecord() ([]*ConstructRecord, error) {
 	constructRecordList := make([]*ConstructRecord, 0)
-	err := OrmWeb.Find(&constructRecordList)
+	err := OrmWeb.Desc("id").Find(&constructRecordList)
 	if err != nil {
 		return nil, err
 	}

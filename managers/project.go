@@ -9,7 +9,6 @@ import (
 
 	"regexp"
 
-	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
@@ -40,7 +39,23 @@ func AddNewProject(accountId int64, projectName string, projectDescribe string, 
 	}
 
 	if projectMember != "" {
-		project.ProjectMember = projectMember
+		var member string
+		array := strings.Split(projectMember, ",")
+		for i := 0; i < len(array); i++ {
+			account, err := models.Account{}.GetByName(array[i])
+			if err != nil {
+				panic(err.Error())
+			}
+			if account == nil {
+				return false, "user is not exist"
+			}
+
+			member += strconv.FormatInt(account.Id, 10)
+			if i < len(array)-1 {
+				member += ";"
+			}
+		}
+		project.ProjectMember = member
 	}
 
 	createTime := time.Now().Unix()
@@ -66,9 +81,27 @@ func UpdateProject(accountId int64, projectId int64, projectName string, project
 		ProjectDescribe: projectDescribe,
 		GitDockerPath:   gitDockerPath,
 	}
+
 	if projectMember != "" {
-		project.ProjectMember = projectMember
+		var member string
+		array := strings.Split(projectMember, ",")
+		for i := 0; i < len(array); i++ {
+			account, err := models.Account{}.GetByName(array[i])
+			if err != nil {
+				panic(err.Error())
+			}
+			if account == nil {
+				return false, "user is not exist"
+			}
+
+			member += strconv.FormatInt(account.Id, 10)
+			if i < len(array)-1 {
+				member += ";"
+			}
+		}
+		project.ProjectMember = member
 	}
+
 	project.UpdateDate = time.Now().Unix()
 	err := models.Project{}.Update(project)
 	if err != nil {
@@ -78,34 +111,35 @@ func UpdateProject(accountId int64, projectId int64, projectName string, project
 	return true, ""
 }
 
-func ConstructProject(accountId int64, projectID int64) (bool, string) {
-	result := isProjectMember(projectID, accountId)
+//工程页创建构建任务
+func ConstructProject(accountId int64, projectId int64) (bool, string, int64) {
+	result := isProjectMember(projectId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "You have no authority", 0
 	}
-	record, err := models.ConstructRecord{}.GetByProjectId(projectID)
+
+	record, err := models.ConstructRecord{}.GetByProjectId(projectId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	if record != nil && record.ConstructStatu == 1 {
-		return false, "Project is building"
+	if record != nil && (record.ConstructStatu == 0 || record.ConstructStatu == 1) {
+		return false, "Project is building", 0
 	}
 
 	constructRecord := &models.ConstructRecord{
 		AccountId: accountId,
-		ProjectId: projectID,
+		ProjectId: projectId,
 	}
-	constructRecord.ConstructStatu = 1 //构建中
-	constructRecord.ConstructStart = time.Now().Unix()
+	constructRecord.ConstructStatu = 0 //待构建
+	constructRecord.ConstructStart = 0
 	constructRecord.ConstructEnd = 0
 	id, err := models.ConstructRecord{}.Add(constructRecord)
 	if err != nil {
 		panic(err.Error())
 	}
-	mess := &components.SendMess{SubmitType: "construct", SubmitId: id}
-	components.Send("project", mess)
-	return true, ""
+
+	return true, "", id
 }
 
 //func GetAllProjectByPage(size int, requestPage int) ([]map[string]interface{}, int) {
@@ -287,7 +321,7 @@ func getProjectMember(projectMember string) string {
 		}
 		member += account.Name
 		if i < len(array)-1 {
-			member += ";"
+			member += ","
 		}
 	}
 	return member
