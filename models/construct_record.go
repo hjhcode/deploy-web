@@ -112,3 +112,15 @@ func (this ConstructRecord) GetByProjectId(projectId int64) (*ConstructRecord, e
 	}
 	return constructRecord, nil
 }
+
+func (this ConstructRecord) GetByProjectIdAndStatu(projectId int64) (*ConstructRecord, error) {
+	constructRecord := &ConstructRecord{ProjectId: projectId, ConstructStatu: 2}
+	has, err := OrmWeb.Desc("id").Get(constructRecord)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return constructRecord, nil
+}
