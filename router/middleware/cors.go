@@ -11,7 +11,7 @@ import (
 
 func Cors() gin.HandlerFunc {
 	return cors.New(cors.Config{
-		AllowOrigins:     []string{"https://www.fightcoder.com"},
+		AllowOrigins:     []string{"http://128.0.0.150:8000", "http://localhost:8000"},
 		AllowMethods:     []string{"GET", "POST"},
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},

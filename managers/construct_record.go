@@ -23,9 +23,9 @@ func GetAllConstructRecord() ([]map[string]interface{}, int) {
 		endTime := time.Unix(constrcuctList[i].ConstructEnd, 0).Format("2006-01-02 15:04:05")
 		records := make(map[string]interface{})
 		records["id"] = constrcuctList[i].Id
-		records["account_id"] = getCreator(constrcuctList[i].AccountId)
-		records["project_id"] = getProjectName(constrcuctList[i].ProjectId)
-		records["mirror_id"] = getMirrorNameById(constrcuctList[i].MirrorId)
+		records["account_name"] = getCreator(constrcuctList[i].AccountId)
+		records["project_name"] = getProjectName(constrcuctList[i].ProjectId)
+		records["mirror_name"] = getMirrorNameById(constrcuctList[i].MirrorId)
 		records["construct_start"] = startTime
 		records["construct_end"] = endTime
 		records["construct_statu"] = constrcuctList[i].ConstructStatu
@@ -91,8 +91,7 @@ func StartConstructProject(accountId int64, constructId int64) (bool, string) {
 	constructRecord := &models.ConstructRecord{
 		Id:             constructId,
 		ConstructStatu: 1, //构建中
-		ConstructStart: time.Now().Unix(),
-		ConstructEnd:   0,
+		ConstructEnd:   time.Now().Unix(),
 	}
 
 	errs := models.ConstructRecord{}.Update(constructRecord)

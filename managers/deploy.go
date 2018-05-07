@@ -38,11 +38,14 @@ func GetAllDeploy() ([]map[string]interface{}, int) {
 		endTime := time.Unix(deployList[i].DeployEnd, 0).Format("2006-01-02 15:04:05")
 		deploy := make(map[string]interface{})
 		deploy["id"] = deployList[i].Id
-		deploy["account_id"] = getCreator(deployList[i].AccountId)
-		deploy["service_id"] = getServiceName(deployList[i].ServiceId)
+		deploy["service_id"] = deployList[i].ServiceId
+		deploy["account_name"] = getCreator(deployList[i].AccountId)
+		deploy["service_name"] = getServiceName(deployList[i].ServiceId)
+		deploy["mirror_describe"] = getMirrorDescribe(deployList[i].MirrorList)
 		deploy["deploy_start"] = startTime
 		deploy["deploy_end"] = endTime
 		deploy["deploy_statu"] = deployList[i].DeployStatu
+		deploy["percent"] = 66
 		deployLists = append(deployLists, deploy)
 	}
 
@@ -79,7 +82,7 @@ func GetDeployServiceData(deployId int64) map[string]interface{} {
 	lists["service_name"] = service.ServiceName
 	lists["service_describe"] = service.ServiceDescribe
 	lists["account_name"] = getCreator(service.AccountId)
-	lists["host_list"] = deploy.MirrorList
+	lists["host_list"] = deploy.HostList
 	lists["mirror_list"] = getMirrorName(deploy.MirrorList)
 	lists["create_date"] = createtime
 	lists["update_date"] = updatetime
@@ -89,6 +92,48 @@ func GetDeployServiceData(deployId int64) map[string]interface{} {
 
 	return lists
 }
+
+//func StartDeployService(accountId int64, deployId int64, groupId int) (bool, string) {
+//
+//	deploy, err := models.Deploy{}.GetById(deployId)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	result := isServiceMember(deploy.ServiceId, accountId)
+//	if !result {
+//		return false, "You have no authority"
+//	}
+//
+//	var data Data
+//	if err := json.Unmarshal([]byte(deploy.HostList), &data); err != nil {
+//		panic(err.Error())
+//	}
+//
+//	data.Stage[groupId-1].Status = 1 //该分组处于部署状态
+//
+//	jsonBytes, err := json.Marshal(data)
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	deployRecord := &models.Deploy{
+//		Id:          deployId,
+//		DeployStatu: 1, //部署中
+//		DeployEnd:   time.Now().Unix(),
+//		HostList:    string(jsonBytes),
+//	}
+//
+//	errs := models.Deploy{}.Update(deployRecord)
+//	if errs != nil {
+//		panic(err.Error())
+//	}
+//
+//	mess := &components.SendMess{OrderType: 1, DataId: deployId}
+//	components.Send("deploy", mess)
+//
+//	return true, ""
+//}
 
 func StartDeployService(accountId int64, deployId int64, groupId int) (bool, string) {
 
@@ -102,22 +147,19 @@ func StartDeployService(accountId int64, deployId int64, groupId int) (bool, str
 		return false, "You have no authority"
 	}
 
-	var data Data
-	if err := json.Unmarshal([]byte(deploy.MirrorList), &data); err != nil {
-		panic(err.Error())
+	data := changeJsonToDeployData(deploy.HostList)
+
+	data.Stage[groupId-1].Stage_status = 1 //该分组处于部署状态
+	for i := 0; i < len(data.Stage[groupId-1].Machine); i++ {
+		data.Stage[groupId-1].Machine[i].Machine_status = 1
 	}
 
-	data.Stage[groupId-1].Status = 1 //该分组处于部署状态
-
-	jsonBytes, err := json.Marshal(data)
-	if err != nil {
-		panic(err)
-	}
+	jsonBytes := changeDeployDataToJson(data)
 
 	deployRecord := &models.Deploy{
 		Id:          deployId,
 		DeployStatu: 1, //部署中
-		DeployStart: time.Now().Unix(),
+		DeployEnd:   time.Now().Unix(),
 		HostList:    string(jsonBytes),
 	}
 
@@ -158,4 +200,21 @@ func BackDeployService(accountId int64, deployId int64) (bool, string) {
 	components.Send("deploy", mess)
 
 	return true, ""
+}
+
+func changeDeployDataToJson(deployData *models.DeployData) string {
+	data, err := json.Marshal(deployData)
+	if err != nil {
+		panic(err.Error())
+	}
+	return string(data)
+}
+
+func changeJsonToDeployData(hostList string) *models.DeployData {
+	data := &models.DeployData{}
+	if err := json.Unmarshal([]byte(hostList), &data); err != nil {
+		panic(err.Error())
+	}
+
+	return data
 }

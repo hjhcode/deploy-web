@@ -34,7 +34,7 @@ func TestDeployGetById(t *testing.T) {
 	deploy := &Deploy{ServiceId: 1, AccountId: 1, DeployStart: time.Now().Unix(), DeployEnd: time.Now().Unix()}
 	deploy.Add(deploy)
 
-	getDeploy, err := deploy.GetById(deploy.Id)
+	getDeploy, err := deploy.GetById(1)
 	if err != nil {
 		t.Error("GetById() failed.Error:", err)
 	}

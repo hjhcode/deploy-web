@@ -15,7 +15,7 @@ import (
 func DelProject(projectId int64, accountId int64) (bool, string) {
 	result := isProjectCreator(projectId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 	project := &models.Project{Id: projectId, IsDel: 1}
 	err := models.Project{}.Update(project)
@@ -29,7 +29,7 @@ func AddNewProject(accountId int64, projectName string, projectDescribe string, 
 	projectMember string) (bool, string) {
 	result := checkProjectName(projectName)
 	if !result {
-		return false, "project name is exist"
+		return false, "工程名已存在"
 	}
 	project := &models.Project{
 		AccountId:       accountId,
@@ -47,7 +47,7 @@ func AddNewProject(accountId int64, projectName string, projectDescribe string, 
 				panic(err.Error())
 			}
 			if account == nil {
-				return false, "user is not exist"
+				return false, "用户成员不存在"
 			}
 
 			member += strconv.FormatInt(account.Id, 10)
@@ -73,7 +73,7 @@ func UpdateProject(accountId int64, projectId int64, projectName string, project
 	projectMember string) (bool, string) {
 	result := isProjectMember(projectId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 	project := &models.Project{
 		Id:              projectId,
@@ -91,7 +91,7 @@ func UpdateProject(accountId int64, projectId int64, projectName string, project
 				panic(err.Error())
 			}
 			if account == nil {
-				return false, "user is not exist"
+				return false, "用户成员不存在"
 			}
 
 			member += strconv.FormatInt(account.Id, 10)
@@ -115,7 +115,7 @@ func UpdateProject(accountId int64, projectId int64, projectName string, project
 func ConstructProject(accountId int64, projectId int64) (bool, string, int64) {
 	result := isProjectMember(projectId, accountId)
 	if !result {
-		return false, "You have no authority", 0
+		return false, "您没有权限", 0
 	}
 
 	record, err := models.ConstructRecord{}.GetByProjectId(projectId)
@@ -124,7 +124,7 @@ func ConstructProject(accountId int64, projectId int64) (bool, string, int64) {
 	}
 
 	if record != nil && (record.ConstructStatu == 0 || record.ConstructStatu == 1) {
-		return false, "Project is building", 0
+		return false, "工程正在构建中", 0
 	}
 
 	constructRecord := &models.ConstructRecord{
@@ -132,8 +132,8 @@ func ConstructProject(accountId int64, projectId int64) (bool, string, int64) {
 		ProjectId: projectId,
 	}
 	constructRecord.ConstructStatu = 0 //待构建
-	constructRecord.ConstructStart = 0
-	constructRecord.ConstructEnd = 0
+	constructRecord.ConstructStart = time.Now().Unix()
+	constructRecord.ConstructEnd = time.Now().Unix()
 	id, err := models.ConstructRecord{}.Add(constructRecord)
 	if err != nil {
 		panic(err.Error())
@@ -197,6 +197,7 @@ func GetAllProject() ([]map[string]interface{}, int) {
 		projects["git_docker_path"] = projectList[i].GitDockerPath
 		projects["create_date"] = createtime
 		projects["update_date"] = updatetime
+		projects["project_member"] = getProjectMember(projectList[i].ProjectMember)
 		projectLists = append(projectLists, projects)
 	}
 

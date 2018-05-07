@@ -17,8 +17,8 @@ func RegisterDeploy(router *gin.RouterGroup) {
 }
 
 type DeployIdParam struct {
-	DeployId int64 `json:"deploy_id" binding:"required"`
-	GroupId  int   `json:"group_id"`
+	DeployId int64 `json:"deploy_id" form:"deploy_id" binding:"required"`
+	GroupId  int   `json:"group_id"  form:"group_id"`
 }
 
 func httpHandlerDeployShow(c *gin.Context) {
@@ -47,7 +47,7 @@ func httpHandlerDeployDetail(c *gin.Context) {
 
 func httpHandlerDeployStart(c *gin.Context) {
 	var deploy DeployIdParam
-	err := c.BindJSON(&deploy)
+	err := c.Bind(&deploy)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -64,7 +64,7 @@ func httpHandlerDeployStart(c *gin.Context) {
 
 func httpHandlerDeployBack(c *gin.Context) {
 	var deploy DeployIdParam
-	err := c.BindJSON(&deploy)
+	err := c.Bind(&deploy)
 	if err != nil {
 		panic(err.Error())
 	}

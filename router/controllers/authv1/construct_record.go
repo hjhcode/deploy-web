@@ -17,7 +17,7 @@ func RegisterConstructRecord(router *gin.RouterGroup) {
 }
 
 type ConstructIdParam struct {
-	ConstructId int64 `json:"construct_id" binding:"required"`
+	ConstructId int64 `json:"construct_id" form:"construct_id" binding:"required"`
 }
 
 func httpHandlerConstructShow(c *gin.Context) {
@@ -46,7 +46,7 @@ func httpHandlerConstructDetail(c *gin.Context) {
 
 func httpHandlerConstructStart(c *gin.Context) {
 	var construct ConstructIdParam
-	err := c.BindJSON(&construct)
+	err := c.Bind(&construct)
 	if err != nil {
 		panic(err.Error())
 	}

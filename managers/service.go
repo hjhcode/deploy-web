@@ -1,33 +1,37 @@
 package managers
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 
 	"time"
 
+	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
 func DelService(serviceId int64, accountId int64) (bool, string) {
 	result := isServiceCreator(serviceId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 	service := &models.Service{Id: serviceId, IsDel: 1}
 	err := models.Service{}.Update(service)
 	if err != nil {
 		panic(err.Error())
 	}
+	mess := &components.SendMess{OrderType: 3, DataId: serviceId}
+	components.Send("deploy", mess)
 
 	return true, ""
 }
 
 func AddNewService(accountId int64, serviceName string, serviceDescribe string, hostList string,
-	mirrorList string, dockerConfig string, serviceMember string) (bool, string) {
+	mirrorList int64, dockerConfig string, serviceMember string) (bool, string) {
 	result := checkServiceName(serviceName)
 	if !result {
-		return false, "service name is exist"
+		return false, "服务名已存在"
 	}
 	service := &models.Service{
 		AccountId:       accountId,
@@ -47,7 +51,7 @@ func AddNewService(accountId int64, serviceName string, serviceDescribe string, 
 				panic(err.Error())
 			}
 			if account == nil {
-				return false, "user is not exist"
+				return false, "用户成员不存在"
 			}
 
 			member += strconv.FormatInt(account.Id, 10)
@@ -70,10 +74,10 @@ func AddNewService(accountId int64, serviceName string, serviceDescribe string, 
 }
 
 func UpdateService(accountId int64, serviceId int64, serviceName string, serviceDescribe string, hostList string,
-	mirrorList string, dockerConfig string, serviceMember string) (bool, string) {
+	mirrorList int64, dockerConfig string, serviceMember string) (bool, string) {
 	result := isServiceMember(serviceId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 	service := &models.Service{
 		Id:              serviceId,
@@ -92,7 +96,7 @@ func UpdateService(accountId int64, serviceId int64, serviceName string, service
 				panic(err.Error())
 			}
 			if account == nil {
-				return false, "user is not exist"
+				return false, "用户成员不存在"
 			}
 
 			member += strconv.FormatInt(account.Id, 10)
@@ -112,10 +116,45 @@ func UpdateService(accountId int64, serviceId int64, serviceName string, service
 	return true, ""
 }
 
+//func DeployService(serviceId int64, accountId int64) (bool, string, int64) {
+//	result := isServiceMember(serviceId, accountId)
+//	if !result {
+//		return false, "您没有权限", 0
+//	}
+//
+//	deployResult, err := models.Deploy{}.GetByServiceId(serviceId)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	if deployResult != nil && (deployResult.DeployStatu == 0 || deployResult.DeployStatu == 1) {
+//		return false, "服务正在部署中", 0
+//	}
+//
+//	service, _ := models.Service{}.GetById(serviceId)
+//
+//	deploy := &models.Deploy{
+//		ServiceId:    serviceId,
+//		AccountId:    accountId,
+//		HostList:     service.HostList,
+//		MirrorList:   service.MirrorList,
+//		DockerConfig: service.DockerConfig,
+//	}
+//	deploy.DeployStart = time.Now().Unix()
+//	deploy.DeployEnd = time.Now().Unix()
+//	deploy.DeployStatu = 0 //待部署
+//	id, err := models.Deploy{}.Add(deploy)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//
+//	return true, "", id
+//}
+
 func DeployService(serviceId int64, accountId int64) (bool, string, int64) {
 	result := isServiceMember(serviceId, accountId)
 	if !result {
-		return false, "You have no authority", 0
+		return false, "您没有权限", 0
 	}
 
 	deployResult, err := models.Deploy{}.GetByServiceId(serviceId)
@@ -124,19 +163,38 @@ func DeployService(serviceId int64, accountId int64) (bool, string, int64) {
 	}
 
 	if deployResult != nil && (deployResult.DeployStatu == 0 || deployResult.DeployStatu == 1) {
-		return false, "Service is deploying", 0
+		return false, "服务正在部署中", 0
 	}
 
 	service, _ := models.Service{}.GetById(serviceId)
+	data := changeJsonToServiceData(service.HostList)
+
+	var deploys models.DeployData
+	for _, value := range data.Stage {
+		deployStage := models.DeployStage{}
+		deployMachine := models.DeployMachine{}
+		for _, values := range value.Machine {
+			deployMachine.Id = values.Id
+			deployMachine.Machine_status = 0
+			deployStage.Machine = append(deployStage.Machine, deployMachine)
+			deployStage.Stage_status = 0
+		}
+
+		deploys.Stage = append(deploys.Stage, deployStage)
+	}
+
+	deployDatas := changeDeployDataToJson(&deploys)
+
 	deploy := &models.Deploy{
 		ServiceId:    serviceId,
 		AccountId:    accountId,
-		HostList:     service.HostList,
+		HostList:     string(deployDatas),
 		MirrorList:   service.MirrorList,
 		DockerConfig: service.DockerConfig,
 	}
-	deploy.DeployStart = 0
-	deploy.DeployEnd = 0
+
+	deploy.DeployStart = time.Now().Unix()
+	deploy.DeployEnd = time.Now().Unix()
 	deploy.DeployStatu = 0 //待部署
 	id, err := models.Deploy{}.Add(deploy)
 	if err != nil {
@@ -194,11 +252,13 @@ func GetAllService() ([]map[string]interface{}, int) {
 		updatetime := time.Unix(serviceList[i].UpdateDate, 0).Format("2006-01-02 15:04:05")
 		services := make(map[string]interface{})
 		services["id"] = serviceList[i].Id
-		services["account_id"] = getCreator(serviceList[i].AccountId)
+		services["account_name"] = getCreator(serviceList[i].AccountId)
 		services["service_name"] = serviceList[i].ServiceName
 		services["service_describe"] = serviceList[i].ServiceDescribe
 		services["create_date"] = createtime
 		services["update_date"] = updatetime
+		services["service_member"] = getServiceMember(serviceList[i].ServiceMember)
+		services["service_statu"] = serviceList[i].ServiceStatu
 		serviceLists = append(serviceLists, services)
 	}
 
@@ -344,4 +404,13 @@ func getServiceName(serviceId int64) string {
 	}
 
 	return service.ServiceName
+}
+
+func changeJsonToServiceData(hostList string) *models.ServiceData {
+	data := &models.ServiceData{}
+	if err := json.Unmarshal([]byte(hostList), &data); err != nil {
+		panic(err.Error())
+	}
+
+	return data
 }

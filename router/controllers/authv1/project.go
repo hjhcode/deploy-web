@@ -29,12 +29,12 @@ type ProjectParam struct {
 }
 
 type ProjectIdParam struct {
-	ProjectId int64 `json:"project_id" binding:"required"`
+	ProjectId int64 `json:"project_id" form:"project_id" binding:"required"`
 }
 
 func httpHandlerProjectAdd(c *gin.Context) {
 	var project ProjectParam
-	err := c.BindJSON(&project)
+	err := c.Bind(&project)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -51,7 +51,7 @@ func httpHandlerProjectAdd(c *gin.Context) {
 
 func httpHandlerProjectDel(c *gin.Context) {
 	var project ProjectIdParam
-	err := c.BindJSON(&project)
+	err := c.Bind(&project)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -68,7 +68,7 @@ func httpHandlerProjectDel(c *gin.Context) {
 
 func httpHandlerProjectUpdate(c *gin.Context) {
 	var project ProjectParam
-	err := c.BindJSON(&project)
+	err := c.Bind(&project)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -120,7 +120,7 @@ func httpHandlerProjectDetail(c *gin.Context) {
 //点击工程页面构建按钮触发
 func httpHandlerConstruct(c *gin.Context) {
 	var project ProjectIdParam
-	err := c.BindJSON(&project)
+	err := c.Bind(&project)
 	if err != nil {
 		panic(err.Error())
 	}
