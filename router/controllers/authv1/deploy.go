@@ -14,6 +14,8 @@ func RegisterDeploy(router *gin.RouterGroup) {
 	router.GET("deploy/detail", httpHandlerDeployDetail)
 	router.POST("deploy/start", httpHandlerDeployStart)
 	router.POST("deploy/rollback", httpHandlerDeployBack)
+	router.POST("deploy/end", httpHandlerDeployEnd)
+	router.POST("deploy/jump", httpHandlerDeployJump)
 }
 
 type DeployIdParam struct {
@@ -23,15 +25,11 @@ type DeployIdParam struct {
 
 func httpHandlerDeployShow(c *gin.Context) {
 	deployList, num := managers.GetAllDeploy()
-	if deployList == nil {
-		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
-	} else {
-		response := map[string]interface{}{
-			"total_page": num,
-			"datas":      deployList,
-		}
-		c.JSON(http.StatusOK, base.Success(response))
+	response := map[string]interface{}{
+		"total_page": num,
+		"datas":      deployList,
 	}
+	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerDeployDetail(c *gin.Context) {
@@ -77,4 +75,26 @@ func httpHandlerDeployBack(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, base.Success())
+}
+
+func httpHandlerDeployEnd(c *gin.Context) {
+	var deploy DeployIdParam
+	err := c.Bind(&deploy)
+	if err != nil {
+		panic(err.Error())
+	}
+	//修改数据库中部署状态
+	//accountId := base.UserId(c)
+	//var accountId int64 = 1
+	//result, mess := managers.EndDeployService
+
+}
+
+func httpHandlerDeployJump(c *gin.Context) {
+	var deploy DeployIdParam
+	err := c.Bind(&deploy)
+	if err != nil {
+		panic(err.Error())
+	}
+
 }

@@ -33,6 +33,7 @@ func AddNewService(accountId int64, serviceName string, serviceDescribe string, 
 	if !result {
 		return false, "服务名已存在"
 	}
+
 	service := &models.Service{
 		AccountId:       accountId,
 		ServiceName:     serviceName,
@@ -79,6 +80,7 @@ func UpdateService(accountId int64, serviceId int64, serviceName string, service
 	if !result {
 		return false, "您没有权限"
 	}
+
 	service := &models.Service{
 		Id:              serviceId,
 		ServiceName:     serviceName,
@@ -173,10 +175,16 @@ func DeployService(serviceId int64, accountId int64) (bool, string, int64) {
 	for _, value := range data.Stage {
 		deployStage := models.DeployStage{}
 		deployMachine := models.DeployMachine{}
-		for _, values := range value.Machine {
-			deployMachine.Id = values.Id
-			deployMachine.Machine_status = 0
-			deployStage.Machine = append(deployStage.Machine, deployMachine)
+		if value.Machine != nil {
+			for _, values := range value.Machine {
+				deployMachine.Id = values.Id
+				deployMachine.Name = getHostName(values.Id)
+				deployMachine.Machine_status = 0
+				deployStage.Machine = append(deployStage.Machine, deployMachine)
+				deployStage.Stage_status = 0
+			}
+		} else {
+			deployStage.Machine = nil
 			deployStage.Stage_status = 0
 		}
 
@@ -188,7 +196,7 @@ func DeployService(serviceId int64, accountId int64) (bool, string, int64) {
 	deploy := &models.Deploy{
 		ServiceId:    serviceId,
 		AccountId:    accountId,
-		HostList:     string(deployDatas),
+		HostList:     deployDatas,
 		MirrorList:   service.MirrorList,
 		DockerConfig: service.DockerConfig,
 	}
@@ -308,18 +316,30 @@ func GetOneService(serviceId int64) map[string]interface{} {
 	if err != nil {
 		panic(err.Error())
 	}
-	createtime := time.Unix(service.CreateDate, 0).Format("2006-01-02 15:04:05")
-	updatetime := time.Unix(service.UpdateDate, 0).Format("2006-01-02 15:04:05")
+
+	data := changeJsonToServiceData(service.HostList)
+
+	var host models.ServiceData
+	for _, value := range data.Stage {
+		hostStage := models.ServiceStage{}
+		hostMachine := models.ServiceMachine{}
+		for _, values := range value.Machine {
+			hostMachine.Id = values.Id
+			hostMachine.Name = getHostName(values.Id)
+			hostStage.Machine = append(hostStage.Machine, hostMachine)
+		}
+		host.Stage = append(host.Stage, hostStage)
+	}
+
+	jsonData := changeServiceDataToJson(host)
+
 	services := make(map[string]interface{})
 	services["id"] = serviceId
-	services["account_id"] = getCreator(service.AccountId)
 	services["service_name"] = service.ServiceName
 	services["service_describe"] = service.ServiceDescribe
-	services["host_list"] = service.HostList
+	services["host_list"] = jsonData
 	services["mirror_list"] = getMirrorName(service.MirrorList)
 	services["docker_config"] = service.DockerConfig
-	services["create_date"] = createtime
-	services["update_date"] = updatetime
 	services["service_member"] = getServiceMember(service.ServiceMember)
 
 	return services
@@ -413,4 +433,12 @@ func changeJsonToServiceData(hostList string) *models.ServiceData {
 	}
 
 	return data
+}
+
+func changeServiceDataToJson(serviceData models.ServiceData) string {
+	data, err := json.Marshal(serviceData)
+	if err != nil {
+		panic(err.Error())
+	}
+	return string(data)
 }

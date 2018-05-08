@@ -85,7 +85,7 @@ func StartConstructProject(accountId int64, constructId int64) (bool, string) {
 
 	result := isProjectMember(record.ProjectId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 
 	constructRecord := &models.ConstructRecord{

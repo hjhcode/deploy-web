@@ -22,15 +22,11 @@ type ConstructIdParam struct {
 
 func httpHandlerConstructShow(c *gin.Context) {
 	constructList, num := managers.GetAllConstructRecord()
-	if constructList == nil {
-		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
-	} else {
-		response := map[string]interface{}{
-			"total_page": num,
-			"datas":      constructList,
-		}
-		c.JSON(http.StatusOK, base.Success(response))
+	response := map[string]interface{}{
+		"total_page": num,
+		"datas":      constructList,
 	}
+	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerConstructDetail(c *gin.Context) {

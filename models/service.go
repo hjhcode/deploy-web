@@ -29,6 +29,7 @@ type ServiceStage struct {
 
 type ServiceMachine struct {
 	Id               int64  `json:"id"`
+	Name             string `json:"name"`
 	Container_status string `json:"container_status"`
 }
 
@@ -103,7 +104,7 @@ func (this Service) QueryByAccountId(accountId int64) ([]*Service, error) {
 //查询(查询所有服务)
 func (this Service) QueryAllService() ([]*Service, error) {
 	serviceList := make([]*Service, 0)
-	err := OrmWeb.Where("is_del != ?", 1).Find(&serviceList)
+	err := OrmWeb.Desc("id").Where("is_del != ?", 1).Find(&serviceList)
 	if err != nil {
 		return nil, err
 	}

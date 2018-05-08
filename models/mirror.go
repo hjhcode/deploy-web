@@ -55,3 +55,21 @@ func (this Mirror) QueryByMirrorName(mirrorName string) ([]*Mirror, error) {
 	}
 	return mirrorList, nil
 }
+
+func (this Mirror) CountAllMirror() (int64, error) {
+	sum, err := OrmWeb.Count(&Mirror{})
+	if err != nil {
+		return 0, nil
+	}
+	return sum, nil
+}
+
+//查询(查询所有工程）
+func (this Mirror) QueryAllMirror() ([]*Mirror, error) {
+	mirrorList := make([]*Mirror, 0)
+	err := OrmWeb.Find(&mirrorList)
+	if err != nil {
+		return nil, err
+	}
+	return mirrorList, nil
+}

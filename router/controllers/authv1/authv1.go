@@ -10,4 +10,6 @@ func Register(router *gin.RouterGroup) {
 	RegisterProject(router)
 	RegisterConstructRecord(router)
 	RegisterDeploy(router)
+	RegisterMirror(router)
+	RegisterHost(router)
 }

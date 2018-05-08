@@ -80,3 +80,11 @@ func (this Host) QueryAllHost() ([]*Host, error) {
 	}
 	return hostList, nil
 }
+
+func (this Host) CountAllHost() (int64, error) {
+	sum, err := OrmWeb.Count(&Host{})
+	if err != nil {
+		return 0, nil
+	}
+	return sum, nil
+}

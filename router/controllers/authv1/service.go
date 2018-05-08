@@ -72,7 +72,8 @@ func httpHandlerServiceUpdate(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	accountId := base.UserId(c)
+	var accountId int64 = 1
+	//accountId := base.UserId(c)
 	if result, mess := managers.UpdateService(accountId, service.ServiceId, service.ServiceName, service.ServiceDescribe,
 		service.HostList, service.MirrorList, service.DockerConfig, service.ServiceMember); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -84,15 +85,11 @@ func httpHandlerServiceUpdate(c *gin.Context) {
 
 func httpHandlerServiceShow(c *gin.Context) {
 	serviceList, num := managers.GetAllService()
-	if serviceList == nil {
-		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
-	} else {
-		response := map[string]interface{}{
-			"total_page": num,
-			"datas":      serviceList,
-		}
-		c.JSON(http.StatusOK, base.Success(response))
+	response := map[string]interface{}{
+		"total_page": num,
+		"datas":      serviceList,
 	}
+	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerServiceSearch(c *gin.Context) {

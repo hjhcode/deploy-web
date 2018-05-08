@@ -144,23 +144,24 @@ func StartDeployService(accountId int64, deployId int64, groupId int) (bool, str
 
 	result := isServiceMember(deploy.ServiceId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 
 	data := changeJsonToDeployData(deploy.HostList)
 
-	data.Stage[groupId-1].Stage_status = 1 //该分组处于部署状态
-	for i := 0; i < len(data.Stage[groupId-1].Machine); i++ {
-		data.Stage[groupId-1].Machine[i].Machine_status = 1
+	if data.Stage[groupId-1].Stage_status == 1 {
+		return false, "该分组正在部署中"
 	}
 
-	jsonBytes := changeDeployDataToJson(data)
+	data.Stage[groupId-1].Stage_status = 1 //该分组处于部署状态
+
+	jsonStrings := changeDeployDataToJson(data)
 
 	deployRecord := &models.Deploy{
 		Id:          deployId,
 		DeployStatu: 1, //部署中
 		DeployEnd:   time.Now().Unix(),
-		HostList:    string(jsonBytes),
+		HostList:    jsonStrings,
 	}
 
 	errs := models.Deploy{}.Update(deployRecord)
@@ -183,7 +184,7 @@ func BackDeployService(accountId int64, deployId int64) (bool, string) {
 
 	result := isServiceMember(deploy.ServiceId, accountId)
 	if !result {
-		return false, "You have no authority"
+		return false, "您没有权限"
 	}
 
 	deployRecord := &models.Deploy{

@@ -85,15 +85,11 @@ func httpHandlerProjectUpdate(c *gin.Context) {
 
 func httpHandlerProjectShow(c *gin.Context) {
 	projectList, num := managers.GetAllProject()
-	if projectList == nil {
-		c.JSON(http.StatusOK, base.Fail("No content at the moment"))
-	} else {
-		response := map[string]interface{}{
-			"total_page": num,
-			"datas":      projectList,
-		}
-		c.JSON(http.StatusOK, base.Success(response))
+	response := map[string]interface{}{
+		"total_page": num,
+		"datas":      projectList,
 	}
+	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerProjectSearch(c *gin.Context) {

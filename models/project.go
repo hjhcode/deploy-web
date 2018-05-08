@@ -87,7 +87,7 @@ func (this Project) QueryByAccountId(accountId int64) ([]*Project, error) {
 //查询(查询所有工程）
 func (this Project) QueryAllProject() ([]*Project, error) {
 	projectList := make([]*Project, 0)
-	err := OrmWeb.Where("is_del != ?", 1).Find(&projectList)
+	err := OrmWeb.Desc("id").Where("is_del != ?", 1).Find(&projectList)
 	if err != nil {
 		return nil, err
 	}

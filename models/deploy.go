@@ -30,6 +30,7 @@ type DeployStage struct {
 
 type DeployMachine struct {
 	Id             int64  `json:"id"`
+	Name           string `json:"name"`
 	Machine_status int    `json:"machine_status"`
 	Step           string `json:"step"`
 }
