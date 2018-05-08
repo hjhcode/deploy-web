@@ -148,15 +148,11 @@ func StartDeployService(accountId int64, deployId int64, groupId int) (bool, str
 	}
 
 	data := changeJsonToDeployData(deploy.HostList)
-
 	if data.Stage[groupId-1].Stage_status == 1 {
 		return false, "该分组正在部署中"
 	}
-
 	data.Stage[groupId-1].Stage_status = 1 //该分组处于部署状态
-
 	jsonStrings := changeDeployDataToJson(data)
-
 	deployRecord := &models.Deploy{
 		Id:          deployId,
 		DeployStatu: 1, //部署中
@@ -234,6 +230,31 @@ func JumpDeployService(accountId int64, deployId int64, groupId int64, hostId in
 
 	mess := &components.SendMess{OrderType: 1, DataId: deployId}
 	components.Send("deploy", mess)
+
+	return true, ""
+}
+
+func EndDeployService(accountId int64, deployId int64) (bool, string) {
+
+	deploy, err := models.Deploy{}.GetById(deployId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	result := isServiceMember(deploy.ServiceId, accountId)
+	if !result {
+		return false, "您没有权限"
+	}
+
+	deployRecord := &models.Deploy{
+		Id:          deployId,
+		DeployStatu: 4,
+	}
+
+	errs := models.Deploy{}.Update(deployRecord)
+	if errs != nil {
+		panic(err.Error())
+	}
 
 	return true, ""
 }

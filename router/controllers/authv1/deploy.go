@@ -89,11 +89,16 @@ func httpHandlerDeployEnd(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//修改数据库中部署状态
-	//accountId := base.UserId(c)
-	//var accountId int64 = 1
-	//result, mess := managers.EndDeployService
 
+	//accountId := base.UserId(c)
+	var accountId int64 = 1
+	result, mess := managers.EndDeployService(accountId, deploy.DeployId)
+	if !result {
+		c.JSON(http.StatusOK, base.Fail(mess))
+		return
+	}
+
+	c.JSON(http.StatusOK, base.Success())
 }
 
 func httpHandlerDeployJump(c *gin.Context) {
