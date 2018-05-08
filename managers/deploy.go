@@ -203,6 +203,41 @@ func BackDeployService(accountId int64, deployId int64) (bool, string) {
 	return true, ""
 }
 
+func JumpDeployService(accountId int64, deployId int64, groupId int64, hostId int64) (bool, string) {
+
+	deploy, err := models.Deploy{}.GetById(deployId)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	result := isServiceMember(deploy.ServiceId, accountId)
+	if !result {
+		return false, "您没有权限"
+	}
+
+	data := changeJsonToDeployData(deploy.HostList)
+
+	data.Stage[groupId-1].Machine[hostId].Machine_status = 3
+	data.Stage[groupId-1].Stage_status = 1
+
+	jsonStrings := changeDeployDataToJson(data)
+
+	deployRecord := &models.Deploy{
+		Id:       deployId,
+		HostList: jsonStrings,
+	}
+
+	errs := models.Deploy{}.Update(deployRecord)
+	if errs != nil {
+		panic(err.Error())
+	}
+
+	mess := &components.SendMess{OrderType: 1, DataId: deployId}
+	components.Send("deploy", mess)
+
+	return true, ""
+}
+
 func changeDeployDataToJson(deployData *models.DeployData) string {
 	data, err := json.Marshal(deployData)
 	if err != nil {

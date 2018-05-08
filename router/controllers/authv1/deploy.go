@@ -23,6 +23,12 @@ type DeployIdParam struct {
 	GroupId  int   `json:"group_id"  form:"group_id"`
 }
 
+type DeployJumpId struct {
+	DeployId int64 `json:"deploy_id" form:"deploy_id"`
+	GroupId  int64 `json:"group_id"  form:"group_id"`
+	HostId   int64 `json:"host_id"   form:"host_id"`
+}
+
 func httpHandlerDeployShow(c *gin.Context) {
 	deployList, num := managers.GetAllDeploy()
 	response := map[string]interface{}{
@@ -91,10 +97,17 @@ func httpHandlerDeployEnd(c *gin.Context) {
 }
 
 func httpHandlerDeployJump(c *gin.Context) {
-	var deploy DeployIdParam
+	var deploy DeployJumpId
 	err := c.Bind(&deploy)
 	if err != nil {
 		panic(err.Error())
 	}
+	var accountId int64 = 1
+	result, mess := managers.JumpDeployService(accountId, deploy.DeployId, deploy.GroupId, deploy.HostId)
+	if !result {
+		c.JSON(http.StatusOK, base.Fail(mess))
+		return
+	}
 
+	c.JSON(http.StatusOK, base.Success())
 }
