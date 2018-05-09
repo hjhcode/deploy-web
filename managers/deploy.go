@@ -45,7 +45,8 @@ func GetAllDeploy() ([]map[string]interface{}, int) {
 		deploy["deploy_start"] = startTime
 		deploy["deploy_end"] = endTime
 		deploy["deploy_statu"] = deployList[i].DeployStatu
-		deploy["percent"] = 66
+		data := changeJsonToDeployData(deployList[i].HostList)
+		deploy["percent"] = data.Progress_status
 		deployLists = append(deployLists, deploy)
 	}
 

@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"net/http"
 
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hjhcode/deploy-web/managers"
 	"github.com/hjhcode/deploy-web/router/controllers/base"
@@ -26,6 +28,7 @@ func httpHandlerLogin(c *gin.Context) {
 		panic(err)
 	}
 	token, err := managers.AccountLogin(account.Name, account.Password)
+	fmt.Println(token)
 	if err != nil {
 		c.JSON(http.StatusOK, base.Fail(err.Error()))
 		return

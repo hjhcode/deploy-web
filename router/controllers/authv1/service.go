@@ -40,8 +40,7 @@ func httpHandlerServiceAdd(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	if result, mess := managers.AddNewService(accountId, service.ServiceName, service.ServiceDescribe,
 		service.HostList, service.MirrorList, service.DockerConfig, service.ServiceMember); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -72,8 +71,7 @@ func httpHandlerServiceUpdate(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	var accountId int64 = 1
-	//accountId := base.UserId(c)
+	accountId := base.UserId(c)
 	if result, mess := managers.UpdateService(accountId, service.ServiceId, service.ServiceName, service.ServiceDescribe,
 		service.HostList, service.MirrorList, service.DockerConfig, service.ServiceMember); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -95,15 +93,11 @@ func httpHandlerServiceShow(c *gin.Context) {
 func httpHandlerServiceSearch(c *gin.Context) {
 	serviceName := c.Query("name")
 	serviceList, num := managers.GetServiceByParam(serviceName)
-	if serviceList == nil {
-		c.JSON(http.StatusOK, base.Fail("No relevant content was found"))
-	} else {
-		response := map[string]interface{}{
-			"total_page": num,
-			"data":       serviceList,
-		}
-		c.JSON(http.StatusOK, base.Success(response))
+	response := map[string]interface{}{
+		"total_page": num,
+		"datas":      serviceList,
 	}
+	c.JSON(http.StatusOK, base.Success(response))
 }
 
 func httpHandlerServiceDetail(c *gin.Context) {
@@ -119,8 +113,7 @@ func httpHandlerServiceDeploy(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	if result, mess, id := managers.DeployService(service.ServiceId, accountId); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
 	} else {

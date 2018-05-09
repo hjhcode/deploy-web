@@ -38,8 +38,7 @@ func httpHandlerProjectAdd(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	if result, mess := managers.AddNewProject(accountId, project.ProjectName, project.ProjectDescribe,
 		project.GitDockerPath, project.ProjectMember); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -55,8 +54,7 @@ func httpHandlerProjectDel(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	if result, mess := managers.DelProject(project.ProjectId, accountId); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
 		return
@@ -72,8 +70,7 @@ func httpHandlerProjectUpdate(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	if result, mess := managers.UpdateProject(accountId, project.ProjectId, project.ProjectName,
 		project.ProjectDescribe, project.GitDockerPath, project.ProjectMember); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -120,8 +117,7 @@ func httpHandlerConstruct(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	if result, mess, id := managers.ConstructProject(accountId, project.ProjectId); !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
 	} else {

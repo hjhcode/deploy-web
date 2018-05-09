@@ -55,8 +55,7 @@ func httpHandlerDeployStart(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	result, mess := managers.StartDeployService(accountId, deploy.DeployId, deploy.GroupId)
 	if !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -72,8 +71,7 @@ func httpHandlerDeployBack(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	result, mess := managers.BackDeployService(accountId, deploy.DeployId)
 	if !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -90,8 +88,7 @@ func httpHandlerDeployEnd(c *gin.Context) {
 		panic(err.Error())
 	}
 
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	result, mess := managers.EndDeployService(accountId, deploy.DeployId)
 	if !result {
 		c.JSON(http.StatusOK, base.Fail(mess))
@@ -107,7 +104,7 @@ func httpHandlerDeployJump(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	result, mess := managers.JumpDeployService(accountId, deploy.DeployId, deploy.GroupId, deploy.HostId)
 	if !result {
 		c.JSON(http.StatusOK, base.Fail(mess))

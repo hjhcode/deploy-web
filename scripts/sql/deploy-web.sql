@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS `account`;
 CREATE TABLE `account` (
     `id` int(10) unsigned NOT NULL auto_increment COMMENT '用户ID',
     `name` varchar(30) NOT NULL COMMENT '用户名',
-    `password` varchar(30) NOT NULL COMMENT '登录密码',
+    `password` varchar(300) NOT NULL COMMENT '登录密码',
     PRIMARY KEY(`id`),
     KEY `name` (`name`)
 )ENGINE=InnoDB default CHARSET=utf8 COMMENT '用户表';

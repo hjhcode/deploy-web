@@ -46,8 +46,7 @@ func httpHandlerConstructStart(c *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	//accountId := base.UserId(c)
-	var accountId int64 = 1
+	accountId := base.UserId(c)
 	result, mess := managers.StartConstructProject(accountId, construct.ConstructId)
 	if !result {
 		c.JSON(http.StatusOK, base.Fail(mess))

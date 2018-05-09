@@ -7,7 +7,6 @@ import (
 
 	"time"
 
-	"github.com/hjhcode/deploy-web/common/components"
 	"github.com/hjhcode/deploy-web/models"
 )
 
@@ -21,8 +20,8 @@ func DelService(serviceId int64, accountId int64) (bool, string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	mess := &components.SendMess{OrderType: 3, DataId: serviceId}
-	components.Send("deploy", mess)
+	//mess := &components.SendMess{OrderType: 3, DataId: serviceId}
+	//components.Send("deploy", mess)
 
 	return true, ""
 }
@@ -295,11 +294,12 @@ func GetServiceByParam(serviceName string) ([]map[string]interface{}, int) {
 		updatetime := time.Unix(serviceList[i].UpdateDate, 0).Format("2006-01-02 15:04:05")
 		services := make(map[string]interface{})
 		services["id"] = serviceList[i].Id
-		services["account_id"] = getCreator(serviceList[i].AccountId)
+		services["account_name"] = getCreator(serviceList[i].AccountId)
 		services["service_name"] = serviceList[i].ServiceName
 		services["service_describe"] = serviceList[i].ServiceDescribe
 		services["create_date"] = createtime
 		services["update_date"] = updatetime
+		services["service_statu"] = serviceList[i].ServiceStatu
 		serviceLists = append(serviceLists, services)
 	}
 
